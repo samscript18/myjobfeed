@@ -7,7 +7,7 @@ const PrivacyPolicy = () => (
         <h1 className="font-display text-3xl font-bold">Privacy Policy</h1>
         <div className="mt-6 space-y-4 text-sm text-muted-foreground leading-relaxed">
           <p>Last updated: February 2026</p>
-          <p>Your privacy is important to us. This policy outlines how JobNest collects, uses, and protects your information.</p>
+          <p>Your privacy is important to us. This policy outlines how MyJobFeed collects, uses, and protects your information.</p>
           <h2 className="font-display text-lg font-semibold text-foreground pt-4">Information We Collect</h2>
           <p>We collect minimal information necessary to provide our service, including job posting details and contact information submitted by employers.</p>
           <h2 className="font-display text-lg font-semibold text-foreground pt-4">How We Use Information</h2>

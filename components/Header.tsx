@@ -1,14 +1,15 @@
 'use client';
 
-import { Briefcase, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Logo from "./Logo";
 
 const navLinks = [
   { href: "/jobs", label: "Find Jobs" },
-  { href: "/category/technology", label: "Categories" },
+  { href: "/category", label: "Categories" },
   { href: "/blog", label: "Blog" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
@@ -19,14 +20,11 @@ const Header = () => {
   const pathname = usePathname() ?? "";
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-card/80 backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b bg-card/80 backdrop-blur-md lg:px-12 md:px-8 max-md:px-4">
       <div className="container flex h-16 items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 font-display text-xl font-bold text-primary">
-          <Briefcase className="h-6 w-6" />
-          JobNest
-        </Link>
+        <Logo />
 
-        <nav className="hidden items-center gap-1 md:flex">
+        <nav className="hidden items-center gap-6 md:flex">
           {navLinks.map((link) => (
             <Link
               key={link.href}
@@ -53,7 +51,7 @@ const Header = () => {
       </div>
 
       {mobileOpen && (
-        <div className="border-t bg-card p-4 md:hidden">
+        <div className="border-t bg-card p-4 md:hidden my-4 rounded-xl">
           <nav className="flex flex-col gap-2">
             {navLinks.map((link) => (
               <Link

@@ -3,7 +3,7 @@
 @theme {
   /* Fonts */
   --font-sans: "DM Sans", ui-sans-serif, system-ui;
-  --font-display: "Space Grotesk", sans-serif;
+  --font-display: "Manrope", sans-serif;
 
   /* Colors mapped to your HSL variables */
   --color-background: hsl(var(--background));

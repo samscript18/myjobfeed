@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { manrope } from '@/lib/utils/fonts';
 import "./globals.css";
+import Providers from "@/lib/providers/providers";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -17,7 +19,9 @@ export default function RootLayout({
       <body
         className={`${manrope.className} antialiased`}
       >
-        {children}
+        <Providers>
+          <Suspense>{children}</Suspense>
+        </Providers>
       </body>
     </html>
   );

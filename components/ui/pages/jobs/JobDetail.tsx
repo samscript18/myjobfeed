@@ -1,17 +1,19 @@
+'use client';
+
 import { MapPin, Briefcase, Clock, DollarSign, ArrowLeft, ExternalLink, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Layout from "@/components/Layout";
 import JobCard from "@/components/JobCard";
-import { mockJobs } from "@/data/mock-data";
+import { mockJobs } from "@/lib/data/mock-data";
 import Link from "next/link";
-import { useParams } from "next/navigation";
 
-const JobDetail = () => {
-  const params = useParams();
-  console.log(params)
-  const slug = Array.isArray(params?.slug) ? params.slug[0] : params?.slug;
-  const job = mockJobs.find((j) => j.slug === slug);
+interface JobDetailProps {
+  jobSlug: string;
+}
+
+const JobDetail = ({ jobSlug }: JobDetailProps) => {
+  const job = mockJobs.find((job) => job.slug === jobSlug);
 
   if (!job) {
     return (

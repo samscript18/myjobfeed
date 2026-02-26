@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from "react";
 import { Search, MapPin, SlidersHorizontal, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -5,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Layout from "@/components/Layout";
 import JobCard from "@/components/JobCard";
-import { mockJobs } from "@/data/mock-data";
+import { mockJobs } from "@/lib/data/mock-data";
 import { useSearchParams } from "next/navigation";
 
 const jobTypes = ["All Types", "Full-time", "Part-time", "Contract", "Remote", "Internship"];
@@ -27,7 +29,7 @@ const Jobs = () => {
 
   return (
     <Layout>
-      <section className="border-b bg-card py-8">
+      <section className="border-b bg-card p-8 rounded-xl mt-8">
         <div className="container">
           <h1 className="font-display text-3xl font-bold">Find Jobs</h1>
           <p className="mt-1 text-muted-foreground">Discover your next career opportunity</p>
@@ -56,7 +58,7 @@ const Jobs = () => {
                 <h3 className="font-display font-semibold">Filters</h3>
                 <button onClick={() => setShowFilters(false)}><X className="h-5 w-5" /></button>
               </div>
-              <div>
+              {/* <div>
                 <label className="text-sm font-medium">Job Type</label>
                 <Select value={jobType} onValueChange={setJobType}>
                   <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
@@ -64,10 +66,28 @@ const Jobs = () => {
                     {jobTypes.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
                   </SelectContent>
                 </Select>
-              </div>
+              </div> */}
               <div>
                 <label className="text-sm font-medium">Experience</label>
                 <Select defaultValue="All Levels">
+                  <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {experienceLevels.map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Category</label>
+                <Select defaultValue="All Categories">
+                  <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {experienceLevels.map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Date Posted</label>
+                <Select defaultValue="Any Date">
                   <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {experienceLevels.map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}

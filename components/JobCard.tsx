@@ -1,6 +1,6 @@
 import { MapPin, Clock, Briefcase, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import type { Job } from "@/data/mock-data";
+import type { Job } from "@/lib/data/mock-data";
 import Link from "next/link";
 
 const JobCard = ({ job }: { job: Job }) => (
@@ -20,7 +20,7 @@ const JobCard = ({ job }: { job: Job }) => (
           <span className="flex items-center gap-1"><Briefcase className="h-3.5 w-3.5" />{job.type}</span>
           <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" />{job.postedAt}</span>
         </div>
-        <div className="mt-3 flex items-center justify-between">
+        <div className="mt-3 flex flex-col items-start gap-3">
           <Badge variant="secondary" className="text-xs font-medium">{job.category}</Badge>
           <span className="text-sm font-semibold text-primary">{job.salary}</span>
         </div>
