@@ -1,5 +1,4 @@
 export const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
-export const APP_URL = process.env.NEXT_PUBLIC_APP_API_URL || '';
 export const museApiUrl = process.env.NEXT_PUBLIC_MUSE_API_URL;
 export const arbeitnowApiUrl = process.env.NEXT_PUBLIC_ARBEITNOW_API_URL;
 export const joobleApiUrl = process.env.NEXT_PUBLIC_JOOBLE_API_URL;

@@ -1,13 +1,13 @@
 import CategoryPage from "@/components/ui/pages/CategoryPage";
 
-interface CategoryPageProps {
+export interface CategoryPageProps {
   params: Promise<{
-    categorySlug: string;
+    categoryId: string;
   }>;
 }
 
 const Category = async ({ params }: CategoryPageProps) => {
-  const { categorySlug } = await params;
-  return <CategoryPage categorySlug={categorySlug} />;
+  const { categoryId } = await params;
+  return <CategoryPage categoryId={categoryId} />;
 }
 export default Category;

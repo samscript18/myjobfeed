@@ -1,20 +1,34 @@
-// pages/api/categories/index.ts
-import { NextApiRequest, NextApiResponse } from 'next';
 import dbConnect from '@/lib/db/mongodb';
 import Category from '@/lib/db/models/category';
+import { NextResponse } from 'next/server';
+import Job from '@/lib/db/models/job';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export async function GET() {
 	await dbConnect();
-
-	if (req.method !== 'GET') {
-		return res.status(405).json({ success: false, error: 'Method not allowed' });
-	}
 
 	try {
 		const categories = await Category.find().sort({ name: 1 });
-		res.status(200).json({ success: true, categories });
+
+		const updatedCategories = await Promise.all(
+			categories.map(async (category) => {
+				const jobCount = await Job.countDocuments({ categoryId: category._id });
+				return {
+					_id: category._id,
+					name: category.name,
+					slug: category.slug,
+					description: category.description,
+					jobCount,
+				};
+			}),
+		);
+
+		return NextResponse.json({
+			success: true,
+			messaage: 'Categories fetched successfully',
+			data: updatedCategories,
+		});
 	} catch (err) {
 		console.error('[Categories GET] Error:', err);
-		res.status(500).json({ success: false, error: 'Failed to fetch categories' });
+		return NextResponse.json({ success: false, error: 'Failed to fetch categories' });
 	}
 }

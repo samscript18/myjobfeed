@@ -1,21 +1,29 @@
-// import { seedCategories } from '@/lib/db/seed';
-
 import Job from '@/lib/db/models/job';
 import dbConnect from '@/lib/db/mongodb';
-import { NextApiRequest } from 'next';
-import { NextResponse } from 'next/server';
+import { CreateJobDto } from '@/lib/dtos/job.dto';
+import { resolvePaginationQuery } from '@/lib/helpers';
+import { IJob } from '@/lib/interfaces/job.interface';
+import { createSlug } from '@/lib/utils';
+import { CreateJobSchema } from '@/lib/validator';
+import { QueryFilter } from 'mongoose';
+import { NextRequest, NextResponse } from 'next/server';
 
-// export async function GET(req: Request) {
-// 	await seedCategories();
-// }
-
-export default async function GET(req: NextApiRequest) {
+export async function GET(req: NextRequest) {
 	await dbConnect();
 
 	try {
-		const { keyword, location, category, level, datePosted } = req.query;
+		const { searchParams } = new URL(req.url);
 
-		const filter: Record<string, any> = {};
+		const keyword = searchParams.get('keyword');
+		const location = searchParams.get('location');
+		const category = searchParams.get('category');
+		const level = searchParams.get('level');
+		const datePosted = searchParams.get('datePosted');
+		const queryPage = searchParams.get('page');
+		const queryLimit = searchParams.get('limit');
+
+		const filter: QueryFilter<IJob> = {};
+
 		if (keyword)
 			filter.$or = [
 				{ title: { $regex: keyword, $options: 'i' } },
@@ -23,7 +31,7 @@ export default async function GET(req: NextApiRequest) {
 				{ company: { $regex: keyword, $options: 'i' } },
 			];
 		if (location) filter.location = { $regex: location, $options: 'i' };
-		if (category) filter.category = category;
+		if (category) filter.categoryId = category;
 		if (level) filter.level = level;
 		if (datePosted) {
 			const days = parseInt(datePosted as string, 10);
@@ -33,47 +41,61 @@ export default async function GET(req: NextApiRequest) {
 			}
 		}
 
-		const jobs = await Job.find(filter).sort({ postedAt: -1 }).limit(100);
-		NextResponse.json(
-			{ success: true, message: 'Jobs fetched successfully', data: jobs },
+		const count = await Job.countDocuments(filter);
+
+		const { skip, page, totalPages, limit } = resolvePaginationQuery({
+			page: queryPage,
+			limit: queryLimit,
+			count,
+		});
+
+		const jobs = await Job.find(filter)
+			.sort({ postedAt: -1 })
+			.skip(skip)
+			.limit(limit)
+			.populate('categoryId');
+		return NextResponse.json(
+			{
+				success: true,
+				message: 'Jobs fetched successfully',
+				data: jobs,
+				meta: { count, page, totalPages, limit },
+			},
 			{ status: 200 },
 		);
 	} catch (err) {
 		console.error('[Jobs GET] Error:', err);
-		NextResponse.json({ success: false, error: 'Failed to fetch jobs' }, { status: 500 });
+		return NextResponse.json({ success: false, error: 'Failed to fetch jobs' }, { status: 500 });
 	}
 }
 
-export async function POST(req: NextApiRequest) {
-	if (req.method === 'POST') {
-		try {
-			const { title, company, location, category, level, description, url } = req.body;
+export async function POST(req: NextRequest) {
+	try {
+		const body: CreateJobDto = await req.json();
+		const { title, company, url, location, categoryId, level, description } =
+			CreateJobSchema.parse(body);
 
-			if (!title || !company || !url) {
-				return res
-					.status(400)
-					.json({ success: false, error: 'Title, company, and url are required' });
-			}
-
-			const slug = `${title.toLowerCase().replace(/\s+/g, '-')}-${company.toLowerCase().replace(/\s+/g, '-')}`;
-			const newJob = await Job.create({
-				sourceId: `user-${Date.now()}`, // generate unique id for user-posted jobs
-				source: 'user',
-				slug,
-				title,
-				company,
-				location: location || 'Remote',
-				category: category || 'technology',
-				level: level || 'Not Specified',
-				description,
-				url,
-				postedAt: new Date(),
-			});
-
-			res.status(201).json({ success: true, job: newJob });
-		} catch (err) {
-			console.error('[Job POST] Error:', err);
-			res.status(500).json({ success: false, error: 'Failed to create job' });
+		if (!title || !company || !url) {
+			return NextResponse.json({ success: false, error: 'Title, company, and url are required' });
 		}
+
+		const slug = createSlug(title, company);
+		const newJob = await Job.create({
+			sourceId: `myjobfeed-${Date.now()}`,
+			slug,
+			title,
+			company,
+			location: location ?? 'Remote',
+			categoryId,
+			level: level ?? 'Not Specified',
+			description,
+			url,
+			postedAt: new Date(),
+		});
+
+		return NextResponse.json({ success: true, message: 'Job created successfully', data: newJob });
+	} catch (err) {
+		console.error('[Job POST] Error:', err);
+		return NextResponse.json({ success: false, error: 'Failed to create job' });
 	}
 }

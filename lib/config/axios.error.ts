@@ -1,4 +1,4 @@
-// import { toastError } from '../utils/toast';
+import { toast } from 'sonner';
 
 export type AxiosErrorShape = {
 	response?: {
@@ -16,8 +16,7 @@ export function errorHandler<T = AxiosErrorShape | string>(error: AxiosErrorShap
 			? error.response?.data?.message || error.response?.data?.error || error.message
 			: error;
 
-	toastError(String(extractedError) || 'An unknown error occurred', {
-		id: 'error',
-	});
+	console.error('[Axios Error]', extractedError);
+
 	return extractedError as T;
 }

@@ -1,144 +1,14 @@
 import Job from '@/lib/db/models/job';
 import dbConnect from '@/lib/db/mongodb';
 import Category from '@/lib/db/models/category';
-import { GoogleGenAI } from '@google/genai';
 import { ruleBasedCategorize } from '@/lib/utils/categorizeJob';
 import { NextResponse } from 'next/server';
-import { BATCH_SIZE, fetchWithTimeout, TECH_KEYWORDS } from '@/lib/utils';
-import { ArbeitnowJob, JobicyJob, JoobleJob, StandardizedJob, TheMuseJob } from '@/lib/interfaces';
-import { arbeitnowApiUrl, jobicyApiUrl, joobleApiKey, joobleApiUrl, museApiKey, museApiUrl } from '@/lib/constants/env';
+import { BATCH_SIZE } from '@/lib/utils';
+import { StandardizedJob } from '@/lib/interfaces/job.interface';
+import { fetchArbeitnow, fetchJobicy, fetchJooble, fetchTheMuse } from '@/lib/services/job.service';
+import { batchCategorizeAI, buildUpsertOp } from '@/lib/helpers';
 
-const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY! });
-
-function buildUpsertOp(job: StandardizedJob, categoryId: string) {
-	return {
-		updateOne: {
-			filter: { sourceId: job.sourceId || job.url },
-			update: {
-				$set: {
-					title: job.title,
-					description: job.description,
-					location: job.location || 'Remote',
-					url: job.url,
-					company: job.company || '',
-					companyLogo: job.companyLogo || '',
-					level: job.level || 'Not Specified',
-					categoryId,
-					postedAt: job.postedAt ? new Date(job.postedAt) : new Date(),
-					source: job.source,
-					lastSyncedAt: new Date(),
-				},
-			},
-			upsert: true,
-		},
-	};
-}
-
-async function batchCategorizeAI(
-	batch: { title: string; description: string; job: StandardizedJob }[],
-) {
-	const prompt = `
-Classify each job into ONE of these slugs:
-technology, marketing, healthcare, finance, engineering, sales, design, education
-
-Return ONLY an array of slugs in JSON. No extra text.
-
-Jobs:
-${batch.map((j) => `Title: ${j.title}\nDescription: ${j.description?.slice(0, 500)}`).join('\n\n')}
-`;
-	try {
-		const response = await ai.models.generateContent({
-			model: 'gemini-1.5-flash',
-			contents: prompt,
-		});
-		const result = JSON.parse(response.text!);
-		if (!Array.isArray(result) || result.length !== batch.length) {
-			console.warn('[AI] Unexpected batch AI result, defaulting to technology');
-			return batch.map(() => 'technology');
-		}
-		return result.map((r: string) => r.toLowerCase());
-	} catch (error) {
-		console.error('[AI] Batch classification failed:', error);
-		return batch.map(() => 'technology');
-	}
-}
-
-async function fetchArbeitnow() {
-	const res = await fetchWithTimeout(`${arbeitnowApiUrl}/job-board-api`);
-	const { data } = await res.json();
-	return data.map((job: ArbeitnowJob) => ({
-		title: job.title,
-		description: job.description,
-		company: job.company_name,
-		location: job.location,
-		url: job.url,
-		postedAt: new Date(job.created_at * 1000),
-		source: 'arbeitnow',
-		sourceId: `arbeit-${job.slug}`,
-	}));
-}
-
-async function fetchTheMuse() {
-	const res = await fetchWithTimeout(
-		`${museApiUrl}/public/jobs?api_key=${museApiKey}&page=1&descending=true`,
-	);
-	const { results } = await res.json();
-	return results.map((job: TheMuseJob) => ({
-		title: job.name,
-		description: job.contents || '',
-		company: job.company.name,
-		location: job.locations[0]?.name || 'Remote',
-		url: job.refs.landing_page,
-		postedAt: new Date(job.publication_date),
-		source: 'themuse',
-		sourceId: `muse-${job.id}`,
-	}));
-}
-
-async function fetchJobicy() {
-	const res = await fetchWithTimeout(`${jobicyApiUrl}/remote-jobs?count=100`);
-	const data = await res.json();
-	const jobs = data.jobs || [];
-	return jobs.map((job: JobicyJob) => ({
-		title: job.jobTitle.replace(/<[^>]*>/g, ''),
-		description: job.jobDescription?.replace(/<[^>]*>/g, '').slice(0, 800),
-		company: job.companyName,
-		companyLogo: job.companyLogo,
-		location: job.jobGeo || 'Remote',
-		level: job.jobLevel,
-		postedAt: new Date(job.pubDate),
-		source: 'jobicy',
-		sourceId: `jobicy-${job.id}`,
-	}));
-}
-
-async function fetchJooble() {
-	const res = await fetchWithTimeout(`${joobleApiUrl}/${joobleApiKey}`, {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ keywords: TECH_KEYWORDS, location: 'Nigeria', page: 1 }),
-	});
-	if (!res.ok) throw new Error(`Jooble API error ${res.status}`);
-	const data = await res.json();
-	const jobs = data.jobs || [];
-	return jobs.map((job: JoobleJob) => ({
-		title: job.title,
-		description: job.snippet?.replace(/<[^>]*>/g, '').slice(0, 800),
-		company: job.company,
-		location: job.location || 'Remote',
-		url: job.link,
-		postedAt: new Date(job.updated || Date.now()),
-		source: 'jooble',
-		sourceId: `jooble-${job.id}`,
-	}));
-}
-
-export async function GET(req: Request) {
-	const authHeader = req.headers.get('authorization');
-	if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-		return new Response('Unauthorized', { status: 401 });
-	}
-
+export async function GET() {
 	await dbConnect();
 	console.log('[SYNC] Starting job sync...');
 
@@ -152,6 +22,10 @@ export async function GET(req: Request) {
 			fetchJobicy(),
 			fetchJooble(),
 		]);
+
+		console.log(
+			`[SYNC] Fetched jobs - Arbeitnow: ${arbeitJobs.length}, The Muse: ${museJobs.length}, Jobicy: ${jobicyJobs.length}, Jooble: ${joobleJobs.length}`,
+		);
 
 		let allJobs = [...arbeitJobs, ...museJobs, ...jobicyJobs, ...joobleJobs];
 		console.log(`[SYNC] Total fetched jobs: ${allJobs.length}`);
@@ -189,8 +63,10 @@ export async function GET(req: Request) {
 		}
 
 		if (ops.length > 0) {
-			await Job.bulkWrite(ops);
-			console.log(`[SYNC] Upserted ${ops.length} jobs`);
+			const data = await Job.bulkWrite(ops);
+			console.log(
+				`[SYNC] Upserted ${data.upsertedCount} new jobs, Modified ${data.modifiedCount} existing jobs`,
+			);
 		}
 
 		const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);

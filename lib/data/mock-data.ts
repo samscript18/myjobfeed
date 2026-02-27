@@ -16,6 +16,16 @@ export interface Job {
 	postedAt: string;
 	featured: boolean;
 }
+export const mockCategories = [
+	{ name: 'technology', icon: '💻' },
+	{ name: 'marketing', icon: '📣' },
+	{ name: 'design', icon: '🎨' },
+	{ name: 'finance', icon: '💰' },
+	{ name: 'healthcare', icon: '🏥' },
+	{ name: 'education', icon: '📚' },
+	{ name: 'engineering', icon: '⚙️' },
+	{ name: 'sales', icon: '🤝' },
+];
 
 export const categories = [
 	{ name: 'Technology', count: 342, icon: '💻' },
