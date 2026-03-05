@@ -1,10 +1,9 @@
-import { NextApiRequest } from 'next';
 import dbConnect from '@/lib/db/mongodb';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import Category from '@/lib/db/models/category';
 
 export async function GET(
-	req: NextApiRequest,
+	req: NextRequest,
 	{ params }: { params: Promise<{ categoryId: string }> },
 ) {
 	await dbConnect();

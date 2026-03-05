@@ -6,7 +6,14 @@ import { NextResponse } from 'next/server';
 import { BATCH_SIZE } from '@/lib/utils';
 import { StandardizedJob } from '@/lib/interfaces/job.interface';
 import { fetchArbeitnow, fetchJobicy, fetchJooble, fetchTheMuse } from '@/lib/services/job.service';
-import { batchCategorizeAI, buildUpsertOp } from '@/lib/helpers';
+import {
+	batchCategorizeAI,
+	buildUpsertOp,
+	standardizeArbeit,
+	standardizeJobicy,
+	standardizeJooble,
+	standardizeMuse,
+} from '@/lib/helpers';
 
 export async function GET() {
 	await dbConnect();
@@ -27,21 +34,30 @@ export async function GET() {
 			`[SYNC] Fetched jobs - Arbeitnow: ${arbeitJobs.length}, The Muse: ${museJobs.length}, Jobicy: ${jobicyJobs.length}, Jooble: ${joobleJobs.length}`,
 		);
 
-		let allJobs = [...arbeitJobs, ...museJobs, ...jobicyJobs, ...joobleJobs];
-		console.log(`[SYNC] Total fetched jobs: ${allJobs.length}`);
+		const standardizedJobs: StandardizedJob[] = [
+			...arbeitJobs.map(standardizeArbeit),
+			...museJobs.map(standardizeMuse),
+			...jobicyJobs.map(standardizeJobicy),
+			...joobleJobs.map(standardizeJooble),
+		];
+		console.log(`[SYNC] Total fetched jobs: ${standardizedJobs.length}`);
 
-		const seenUrls = new Set();
-		allJobs = allJobs.filter((job) => {
-			if (!job.url || seenUrls.has(job.url)) return false;
-			seenUrls.add(job.url);
+		const seen = new Set<string>();
+
+		const uniqueJobs = standardizedJobs.filter((job) => {
+			const key = `${job.company?.toLowerCase()}-${job.title?.toLowerCase()}-${job.location?.toLowerCase()}`;
+
+			if (seen.has(key)) return false;
+
+			seen.add(key);
 			return true;
 		});
-		console.log(`[SYNC] Deduplicated jobs: ${allJobs.length}`);
+		console.log(`[SYNC] Deduplicated jobs: ${uniqueJobs.length}`);
 
 		const ops: ReturnType<typeof buildUpsertOp>[] = [];
 		const toProcessAI: { title: string; description: string; job: StandardizedJob }[] = [];
 
-		for (const job of allJobs) {
+		for (const job of uniqueJobs) {
 			const cleanDescription = job.description || '';
 			const categorySlug = ruleBasedCategorize(job.title, cleanDescription) || null;
 			if (!categorySlug || !categoryMap.has(categorySlug)) {

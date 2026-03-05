@@ -1,14 +1,13 @@
-import { NextApiRequest } from 'next';
 import dbConnect from '@/lib/db/mongodb';
 import Job from '@/lib/db/models/job';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(req: NextApiRequest, { params }: { params: Promise<{ slug: string }> }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
 	await dbConnect();
 	const { slug } = await params;
 
 	try {
-		const job = await Job.findOne({ slug: slug as string });
+		const job = await Job.findOne({ slug: slug as string }).populate('categoryId', 'name slug');
 		if (!job) return NextResponse.json({ success: false, error: 'Job not found' });
 		NextResponse.json({ success: true, message: 'Job retrieved successfully', data: job });
 	} catch (err) {

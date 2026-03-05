@@ -1,6 +1,6 @@
 import { GoogleGenAI } from '@google/genai';
 import { ResolvedPagination, ResolvePaginationQuery } from '../interfaces/pagination.interface';
-import { StandardizedJob } from '../interfaces/job.interface';
+import { ArbeitnowJob, JobicyJob, JoobleJob, StandardizedJob, TheMuseJob } from '../interfaces/job.interface';
 import { googleApiKey } from '../constants/env';
 
 export function resolvePaginationQuery(query: ResolvePaginationQuery): ResolvedPagination {
@@ -37,7 +37,7 @@ export function buildUpsertOp(job: StandardizedJob, categoryId: string) {
 					title: job.title,
 					description: job.description,
 					location: job.location || 'Remote',
-					url: job.url,
+					url: job.url || job,
 					slug: job.slug,
 					company: job.company || '',
 					companyLogo: job.companyLogo || '',
@@ -80,4 +80,63 @@ ${batch.map((j) => `Title: ${j.title}\nDescription: ${j.description?.slice(0, 50
 		console.error('[AI] Batch classification failed:', error);
 		return batch.map(() => 'technology');
 	}
+}
+
+export function standardizeArbeit(job: ArbeitnowJob): StandardizedJob {
+	return {
+		title: job.title,
+		description: job.description,
+		company: job.company_name,
+		location: job.location,
+		url: job.url,
+		postedAt: new Date(job.created_at * 1000),
+		source: 'arbeitnow',
+		sourceId: job.slug,
+		slug: job.slug,
+	};
+}
+
+export function standardizeMuse(job: TheMuseJob): StandardizedJob {
+	return {
+		title: job.name,
+		description: job.contents,
+		company: job.company?.name,
+		location: job.locations?.[0]?.name,
+		url: job.refs?.landing_page,
+		level: job.levels?.[0]?.name,
+		postedAt: new Date(job.publication_date),
+		source: 'themuse',
+		sourceId: String(job.id),
+		slug: `themuse-${job.id}`,
+	};
+}
+
+export function standardizeJobicy(job: JobicyJob): StandardizedJob {
+	return {
+		title: job.jobTitle,
+		description: job.jobDescription,
+		company: job.companyName,
+		location: job.jobGeo,
+		url: job.url,
+		level: job.jobLevel,
+		companyLogo: job.companyLogo,
+		postedAt: new Date(job.pubDate),
+		source: 'jobicy',
+		sourceId: String(job.id),
+		slug: job.jobSlug,
+	};
+}
+
+export function standardizeJooble(job: JoobleJob): StandardizedJob {
+	return {
+		title: job.title,
+		description: job.snippet,
+		company: job.company,
+		location: job.location,
+		url: job.link,
+		postedAt: job.updated ? new Date(job.updated) : undefined,
+		source: 'jooble',
+		sourceId: job.id,
+		slug: `jooble-${job.id}`,
+	};
 }

@@ -68,10 +68,11 @@ export interface IJob {
 	slug: string;
 	location: string;
 	level: string;
-	categoryId: string;
+	categoryId: string | Category;
 	source: string;
 	sourceId: string;
 	postedAt: Date;
+	url: string;
 }
 
 export interface Job extends IJob {
