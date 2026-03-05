@@ -7,25 +7,34 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Layout from "@/components/Layout";
 import JobCard from "@/components/JobCard";
-import { mockJobs } from "@/lib/data/mock-data";
 import { useSearchParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { getJobs } from "@/lib/services/job.service";
+import Loader from "@/components/Loader";
 
-const jobTypes = ["All Types", "Full-time", "Part-time", "Contract", "Remote", "Internship"];
+// const jobTypes = ["All Types", "Full-time", "Part-time", "Contract", "Remote", "Internship"];
 const experienceLevels = ["All Levels", "Entry Level", "2+ years", "3+ years", "4+ years", "5+ years"];
 
 const Jobs = () => {
   const searchParams = useSearchParams();
   const [keyword, setKeyword] = useState(searchParams?.get("keyword") || "");
   const [location, setLocation] = useState(searchParams?.get("location") || "");
-  const [jobType, setJobType] = useState("All Types");
+  // const [jobType, setJobType] = useState("All Types");
   const [showFilters, setShowFilters] = useState(false);
 
-  const filteredJobs = mockJobs.filter((job) => {
+  const { data: jobs, isPending } = useQuery({
+    queryFn: () =>
+      getJobs({ keywords: keyword, location }),
+    queryKey: ['get-jobs'],
+  });
+
+  const filteredJobs = jobs?.filter((job) => {
     const matchesKeyword = !keyword || job.title.toLowerCase().includes(keyword.toLowerCase()) || job.company.toLowerCase().includes(keyword.toLowerCase());
     const matchesLocation = !location || job.location.toLowerCase().includes(location.toLowerCase());
-    const matchesType = jobType === "All Types" || job.type === jobType;
-    return matchesKeyword && matchesLocation && matchesType;
-  });
+    // const matchesType = jobType === "All Types" || job.type === jobType;
+    return matchesKeyword && matchesLocation;
+  }) || [];
+
 
   return (
     <Layout>
@@ -100,15 +109,26 @@ const Jobs = () => {
           <div className="flex-1">
             <p className="mb-4 text-sm text-muted-foreground">{filteredJobs.length} jobs found</p>
             <div className="grid gap-4">
-              {filteredJobs.map((job) => (
-                <JobCard key={job.id} job={job} />
-              ))}
-              {filteredJobs.length === 0 && (
-                <div className="rounded-lg border bg-card p-12 text-center">
-                  <p className="font-display text-lg font-semibold">No jobs found</p>
-                  <p className="mt-1 text-sm text-muted-foreground">Try adjusting your search or filters</p>
+              {isPending ? (
+                <div className="flex justify-center items-center gap-4 my-24">
+                  <Loader />
                 </div>
+              ) : (
+                <>
+                  {
+                    filteredJobs.map((job) => (
+                      <JobCard key={job._id} job={job} />
+                    ))
+                  }
+                  {filteredJobs.length === 0 && (
+                    <div className="rounded-lg border bg-card p-12 text-center">
+                      <p className="font-display text-lg font-semibold">No jobs found</p>
+                      <p className="mt-1 text-sm text-muted-foreground">Try adjusting your search or filters</p>
+                    </div>
+                  )}
+                </>
               )}
+
             </div>
           </div>
         </div>

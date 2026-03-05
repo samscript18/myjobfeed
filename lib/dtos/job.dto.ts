@@ -13,7 +13,7 @@ export interface GetJobsQueryDto {
 	limit?: number;
 	keywords?: string;
 	category?: string;
-	location?: number;
+	location?: string;
 	level?: number;
 	datePosted?: number;
 }

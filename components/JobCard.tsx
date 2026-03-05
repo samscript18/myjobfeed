@@ -1,4 +1,4 @@
-import { MapPin, Clock, Briefcase, Star } from "lucide-react";
+import { MapPin, Clock, Briefcase } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { Job } from "@/lib/interfaces/job.interface";
@@ -17,12 +17,12 @@ const JobCard = ({ job }: { job: Job }) => (
         <p className="text-sm text-muted-foreground">{job.company}</p>
         <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
           <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{job.location}</span>
-          <span className="flex items-center gap-1"><Briefcase className="h-3.5 w-3.5" />{job.type}</span>
-          <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" />{job.createdAt}</span>
+          <span className="flex items-center gap-1"><Briefcase className="h-3.5 w-3.5" />{job.level}</span>
+          <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" />{new Date(job.createdAt).toDateString()}</span>
         </div>
         <div className="mt-3 flex flex-col items-start gap-3">
-          <Badge variant="secondary" className="text-xs font-medium">{job.category}</Badge>
-          <span className="text-sm font-semibold text-primary">{job.salary}</span>
+          <Badge variant="secondary" className="text-xs font-medium">{job.categoryId}</Badge>
+          <span className="text-sm font-semibold text-primary">{job.company}</span>
         </div>
       </div>
     </div>

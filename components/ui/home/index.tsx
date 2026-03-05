@@ -5,11 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Layout from "@/components/Layout";
 import JobCard from "@/components/JobCard";
-import { mockJobs, categories } from "@/lib/data/mock-data";
+import { mockJobs, categories, mockCategories } from "@/lib/data/mock-data";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
+import { useQuery } from "@tanstack/react-query";
+import { getJobCategories, getJobs } from "@/lib/services/job.service";
+import Loader from "@/components/Loader";
 
 const stats = [
   { label: "Active Jobs", value: "2,400+", icon: TrendingUp },
@@ -27,7 +30,20 @@ const HomePage = () => {
   const [keyword, setKeyword] = useState("");
   const [location, setLocation] = useState("");
   const router = useRouter();
-  const featuredJobs = mockJobs.filter((j) => j.featured).slice(0, 6);
+
+  const { data: jobs, isPending } = useQuery({
+    queryFn: () =>
+      getJobs(),
+    queryKey: ['get-jobs'],
+  });
+
+  const { data: categories, isPending: isCategoriesPending } = useQuery({
+    queryFn: () =>
+      getJobCategories(),
+    queryKey: ['get-categories'],
+  });
+
+  const featuredJobs = jobs?.slice(0, 6) || [];
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,7 +137,7 @@ const HomePage = () => {
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {featuredJobs.map((job) => (
-              <JobCard key={job.id} job={job} />
+              <JobCard key={job._id} job={job} />
             ))}
           </div>
           <Link href="/jobs" className="md:hidden mt-8 flex justify-center">
@@ -163,21 +179,23 @@ const HomePage = () => {
             <p className="mt-3 text-muted-foreground text-lg">Find your next opportunity in your field</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {categories.map((cat) => (
-              <Link
-                key={cat.name}
-                href={`/categories/${cat.name.toLowerCase()}`}
-                className="group"
-              >
-                <Card className="p-6 h-full flex flex-col items-center text-center hover:shadow-lg hover:border-primary/30 hover:bg-linear-to-br hover:from-primary/5 to-transparent transition-all cursor-pointer">
-                  <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">{cat.icon}</div>
-                  <h3 className="font-display font-semibold text-sm">{cat.name}</h3>
-                  <p className="text-xs text-muted-foreground mt-1">{cat.count} jobs</p>
-                </Card>
-              </Link>
-            ))}
-          </div>
+          {isPending ? (
+            <div className="flex justify-center items-center gap-4 my-24">
+              <Loader />
+            </div>
+          ) : (
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {categories?.map((category) => (
+                <Link key={category._id} href={`/category/${category._id}`} className="group">
+                  <Card className="p-6 h-full flex flex-col items-center text-center hover:shadow-lg hover:border-primary/30 hover:bg-linear-to-br hover:from-primary/5 to-transparent transition-all cursor-pointer">
+                    <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">{mockCategories.find((c) => c.name === category.slug)?.icon}</div>
+                    <h2 className="font-display text-sm font-semibold">{category.name}</h2>
+                    <p className="mt-1 text-sm text-muted-foreground">{category.jobCount} open positions</p>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -205,16 +223,21 @@ const HomePage = () => {
           <h2 className="font-display text-4xl font-bold mb-3">Latest Job Listings</h2>
           <p className="text-muted-foreground mb-12">Find opportunities posted just today</p>
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-12">
-            {mockJobs.slice(0, 9).map((job) => (
-              <JobCard key={job.id} job={job} />
-            ))}
-          </div>
+          {isPending ? (
+            <div className="flex justify-center items-center gap-4 my-24">
+              <Loader />
+            </div>
+          ) : (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-12">
+              {jobs?.slice(0, 9).map((job) => (
+                <JobCard key={job._id} job={job} />
+              ))}
+            </div>)}
 
           <div className="text-center">
             <Link href="/jobs">
               <Button variant="outline" size="lg" className="border-primary/20 hover:bg-primary/90">
-                Browse All {mockJobs.length} Jobs <ArrowRight className="ml-2 h-4 w-4" />
+                Browse All {jobs?.length} Jobs <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
           </div>

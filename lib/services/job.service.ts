@@ -146,13 +146,13 @@ export const getJobs = async (query?: GetJobsQueryDto) => {
 	try {
 		const response = await appApi.get<ApiResponse<Job[]>>('/jobs', {
 			params: {
-				keywords: query?.keywords,
-				location: query?.location,
-				level: query?.level,
-				category: query?.category,
-				datePosted: query?.datePosted,
-				page: Number(query?.page),
-				limit: Number(query?.limit),
+				keywords: query?.keywords || '',
+				location: query?.location || '',
+				level: query?.level || '',
+				category: query?.category || '',
+				datePosted: query?.datePosted || '',
+				page: Number(query?.page || 1),
+				limit: Number(query?.limit || 30),
 			},
 		});
 
@@ -213,4 +213,3 @@ export const getCategory = async (categoryId: string) => {
 		throw error;
 	}
 };
-
