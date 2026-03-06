@@ -1,6 +1,12 @@
 import { GoogleGenAI } from '@google/genai';
 import { ResolvedPagination, ResolvePaginationQuery } from '../interfaces/pagination.interface';
-import { ArbeitnowJob, JobicyJob, JoobleJob, StandardizedJob, TheMuseJob } from '../interfaces/job.interface';
+import {
+	ArbeitnowJob,
+	JobicyJob,
+	JoobleJob,
+	StandardizedJob,
+	TheMuseJob,
+} from '../interfaces/job.interface';
 import { googleApiKey } from '../constants/env';
 
 export function resolvePaginationQuery(query: ResolvePaginationQuery): ResolvedPagination {
@@ -29,6 +35,9 @@ export function resolvePaginationQuery(query: ResolvePaginationQuery): ResolvedP
 const ai = new GoogleGenAI({ apiKey: googleApiKey });
 
 export function buildUpsertOp(job: StandardizedJob, categoryId: string) {
+	const postedAt =
+		job.postedAt && !isNaN(new Date(job.postedAt).getTime()) ? new Date(job.postedAt) : new Date();
+
 	return {
 		updateOne: {
 			filter: { sourceId: job.sourceId || job.url },
@@ -43,7 +52,7 @@ export function buildUpsertOp(job: StandardizedJob, categoryId: string) {
 					companyLogo: job.companyLogo || '',
 					level: job.level || 'Not Specified',
 					categoryId,
-					postedAt: job.postedAt ? new Date(job.postedAt) : new Date(),
+					postedAt: postedAt,
 					source: job.source,
 					lastSyncedAt: new Date(),
 				},

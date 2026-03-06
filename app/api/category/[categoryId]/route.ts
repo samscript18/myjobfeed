@@ -12,13 +12,13 @@ export async function GET(
 	try {
 		const category = await Category.findOne({ _id: categoryId });
 		if (!category) return NextResponse.json({ success: false, error: 'Category not found' });
-		NextResponse.json({
+		return NextResponse.json({
 			success: true,
 			message: 'Category retrieved successfully',
 			data: category,
 		});
 	} catch (err) {
 		console.error('[Category GET] Error:', err);
-		NextResponse.json({ success: false, error: 'Failed to fetch category' });
+		return NextResponse.json({ success: false, error: 'Failed to fetch category' });
 	}
 }

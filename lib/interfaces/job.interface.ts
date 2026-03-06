@@ -54,7 +54,7 @@ export interface StandardizedJob {
 export interface JoobleJob {
 	title: string;
 	snippet?: string;
-	company?: string;
+	company: string;
 	location?: string;
 	link: string;
 	updated?: string;

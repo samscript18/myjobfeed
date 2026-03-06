@@ -11,7 +11,7 @@ export interface CreateJobDto {
 export interface GetJobsQueryDto {
 	page?: number;
 	limit?: number;
-	keywords?: string;
+	keyword?: string;
 	category?: string;
 	location?: string;
 	level?: number;

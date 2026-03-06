@@ -63,6 +63,10 @@ export async function GET() {
 			if (!categorySlug || !categoryMap.has(categorySlug)) {
 				toProcessAI.push({ title: job.title, description: cleanDescription, job });
 			} else {
+				if (!job.title || !job.company || !job.url) {
+					console.log('[SYNC] Invalid job skipped:', job);
+					continue;
+				}
 				ops.push(buildUpsertOp(job, categoryMap.get(categorySlug)!._id));
 			}
 		}

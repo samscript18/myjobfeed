@@ -1,25 +1,37 @@
+'use client';
+
 import Layout from "@/components/Layout";
 import JobCard from "@/components/JobCard";
 import { getCategory, getJobs } from "@/lib/services/job.service";
 import { useQuery } from "@tanstack/react-query";
 import Loader from "@/components/Loader";
+import { ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const CategoryPage = ({ categoryId }: { categoryId: string }) => {
   const { data: category } = useQuery({
     queryFn: () =>
       getCategory(categoryId),
-    queryKey: ['get-category'],
+    queryKey: ['get-category', categoryId],
   });
 
   const { data: jobs, isPending } = useQuery({
     queryFn: () =>
       getJobs({ category: categoryId }),
-    queryKey: ['get-category-jobs'],
+    queryKey: ['get-category-jobs', categoryId],
   });
+  const router = useRouter();
 
   return (
     <Layout>
       <div className="container py-10">
+        <button
+          onClick={() => router.back()}
+          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4"
+        >
+          <ArrowLeft size={16} />
+          Back
+        </button>
         <h1 className="font-display text-3xl font-bold">{category?.name} Jobs</h1>
         <p className="mt-1 text-muted-foreground">{jobs?.length ?? 0} open positions</p>
 

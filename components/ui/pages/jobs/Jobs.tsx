@@ -24,16 +24,16 @@ const Jobs = () => {
 
   const { data: jobs, isPending } = useQuery({
     queryFn: () =>
-      getJobs({ keywords: keyword, location }),
-    queryKey: ['get-jobs'],
+      getJobs({ keyword, location }),
+    queryKey: ['get-jobs', keyword, location],
   });
 
-  const filteredJobs = jobs?.filter((job) => {
-    const matchesKeyword = !keyword || job.title.toLowerCase().includes(keyword.toLowerCase()) || job.company.toLowerCase().includes(keyword.toLowerCase());
-    const matchesLocation = !location || job.location.toLowerCase().includes(location.toLowerCase());
-    // const matchesType = jobType === "All Types" || job.type === jobType;
-    return matchesKeyword && matchesLocation;
-  }) || [];
+  // const jobs? = jobs?.filter((job) => {
+  //   const matchesKeyword = !keyword || job.title.toLowerCase().includes(keyword.toLowerCase()) || job.company.toLowerCase().includes(keyword.toLowerCase());
+  //   const matchesLocation = !location || job.location.toLowerCase().includes(location.toLowerCase());
+  //   // const matchesType = jobType === "All Types" || job.type === jobType;
+  //   return matchesKeyword && matchesLocation;
+  // }) || [];
 
 
   return (
@@ -107,7 +107,7 @@ const Jobs = () => {
           </aside>
 
           <div className="flex-1">
-            <p className="mb-4 text-sm text-muted-foreground">{filteredJobs.length} jobs found</p>
+            <p className="mb-4 text-sm text-muted-foreground">{jobs?.length} jobs found</p>
             <div className="grid gap-4">
               {isPending ? (
                 <div className="flex justify-center items-center gap-4 my-24">
@@ -116,11 +116,11 @@ const Jobs = () => {
               ) : (
                 <>
                   {
-                    filteredJobs.map((job) => (
+                    jobs?.map((job) => (
                       <JobCard key={job._id} job={job} />
                     ))
                   }
-                  {filteredJobs.length === 0 && (
+                  {jobs?.length === 0 && (
                     <div className="rounded-lg border bg-card p-12 text-center">
                       <p className="font-display text-lg font-semibold">No jobs found</p>
                       <p className="mt-1 text-sm text-muted-foreground">Try adjusting your search or filters</p>

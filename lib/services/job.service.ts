@@ -117,7 +117,7 @@ export async function fetchJooble() {
 				.replace(/<[^>]+>/g, '')
 				.replace(/\s+/g, ' ')
 				.trim(),
-			slug: createSlug(job.title, job.company ?? job.id),
+			slug: createSlug(job.title, job.company),
 			company: job.company,
 			location: job.location || 'Remote',
 			url: job.link,
@@ -146,13 +146,13 @@ export const getJobs = async (query?: GetJobsQueryDto) => {
 	try {
 		const response = await appApi.get<ApiResponse<Job[]>>('/jobs', {
 			params: {
-				keywords: query?.keywords || '',
+				keyword: query?.keyword || '',
 				location: query?.location || '',
 				level: query?.level || '',
 				category: query?.category || '',
 				datePosted: query?.datePosted || '',
-				page: Number(query?.page || 1),
-				limit: Number(query?.limit || 30),
+				page: Number(query?.page),
+				limit: Number(query?.limit) || 50,
 			},
 		});
 
@@ -170,7 +170,7 @@ export const getJobsSearch = async (query?: GetJobsSearchQueryDto) => {
 				search: query?.search,
 				location: query?.location,
 				page: Number(query?.page),
-				limit: Number(query?.limit),
+				limit: Number(query?.limit) || 50,
 			},
 		});
 

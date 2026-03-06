@@ -19,8 +19,8 @@ export async function GET(req: NextRequest) {
 		const category = searchParams.get('category');
 		const level = searchParams.get('level');
 		const datePosted = searchParams.get('datePosted');
-		const queryPage = searchParams.get('page');
-		const queryLimit = searchParams.get('limit');
+		const queryPage = searchParams.get('page') || 1;
+		const queryLimit = searchParams.get('limit') || 50;
 
 		const filter: QueryFilter<IJob> = {};
 
@@ -29,6 +29,7 @@ export async function GET(req: NextRequest) {
 				{ title: { $regex: keyword, $options: 'i' } },
 				{ description: { $regex: keyword, $options: 'i' } },
 				{ company: { $regex: keyword, $options: 'i' } },
+				{ slug: { $regex: keyword, $options: 'i' } },
 			];
 		if (location) filter.location = { $regex: location, $options: 'i' };
 		if (category) filter.categoryId = category;
@@ -70,6 +71,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+	await dbConnect();
+
 	try {
 		const body: CreateJobDto = await req.json();
 		const { title, company, url, location, categoryId, level, description } =
