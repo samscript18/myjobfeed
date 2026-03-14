@@ -31,13 +31,14 @@ export interface JobicyJob {
 	pubDate: string;
 	jobSlug: string;
 	url: string;
+	applyUrl: string;
 	salaryMin?: number;
 	salaryMax?: number;
 	salaryCurrency?: string;
 	salaryPeriod?: string;
 }
 
-export interface StandardizedJob {
+export interface normalizedJob {
 	title: string;
 	description?: string;
 	company?: string;
@@ -49,6 +50,28 @@ export interface StandardizedJob {
 	source: string;
 	sourceId: string;
 	slug: string;
+}
+
+export interface NormalizedJob {
+	title: string;
+	description: string;
+	slug: string;
+	company: string;
+	location: string;
+	url: string;
+	postedAt: Date;
+	source: "arbeitnow" | "themuse" | "jobicy" | "jooble";
+	sourceId: string;
+
+	level?: string;
+	category?: string;
+	industry?: string;
+	type?: string;
+	companyLogo?: string;
+
+	salaryMin?: number;
+	salaryMax?: number;
+	salaryCurrency?: string;
 }
 
 export interface JoobleJob {

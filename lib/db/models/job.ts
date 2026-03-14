@@ -13,7 +13,7 @@ const JobSchema = new Schema(
 		slug: { type: String, required: true },
 		title: { type: String, required: true },
 		company: { type: String, required: true },
-		description: { type: String, required: true, default: 'No description provided.' },
+		description: { type: String, required: false, default: 'No description provided.' },
 		level: { type: String, required: false, default: 'Not Specified' },
 		categoryId: { type: Types.ObjectId, required: false },
 		location: { type: String, default: 'Remote' },

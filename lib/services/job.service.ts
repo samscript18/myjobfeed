@@ -1,7 +1,13 @@
-import { toast } from 'sonner';
-import { AxiosErrorShape, errorHandler } from '../config/axios.error';
-import { appApi, arbeitnowApi, jobicyApi, joobleApi, museApi } from '../config/axios.instance';
-import { joobleApiKey, museApiKey } from '../constants/env';
+import { toast } from "sonner";
+import { AxiosErrorShape, errorHandler } from "../config/axios.error";
+import {
+	appApi,
+	arbeitnowApi,
+	jobicyApi,
+	joobleApi,
+	museApi,
+} from "../config/axios.instance";
+import { joobleApiKey, museApiKey } from "../constants/env";
 import {
 	ArbeitnowJob,
 	Category,
@@ -9,30 +15,31 @@ import {
 	JobicyJob,
 	JoobleJob,
 	TheMuseJob,
-} from '../interfaces/job.interface';
-import { createSlug, TECH_KEYWORDS } from '../utils';
-import { ApiResponse } from '../interfaces';
-import { CreateJobDto, GetJobsQueryDto, GetJobsSearchQueryDto } from '../dtos/job.dto';
+} from "../interfaces/job.interface";
+import { cleanText, createSlug, parseDate, TECH_KEYWORDS } from "../utils";
+import { ApiResponse } from "../interfaces";
+import {
+	CreateJobDto,
+	GetJobsQueryDto,
+	GetJobsSearchQueryDto,
+} from "../dtos/job.dto";
 
 export async function fetchArbeitnow() {
 	try {
-		const res = await arbeitnowApi.get('/job-board-api');
+		const res = await arbeitnowApi.get("/job-board-api");
 		const data = res.data?.data || [];
 
-		return data?.map((job: ArbeitnowJob) => ({
+		return data.map((job: ArbeitnowJob) => ({
 			title: job.title,
-			description: job.description
-				.replace(/&nbsp;/g, ' ')
-				.replace(/\.\.\./g, '')
-				.replace(/<[^>]+>/g, '')
-				.replace(/\s+/g, ' ')
-				.trim(),
-			slug: createSlug(job.title, job.company_name),
-			company: job.company_name,
-			location: job.location,
+			description: cleanText(job.description),
+			slug:
+				job.slug ||
+				createSlug(job.title, job.company_name),
+			company: job.company_name || "Unknown",
+			location: job.location || "Remote",
 			url: job.url,
-			postedAt: new Date(job.created_at * 1000),
-			source: 'arbeitnow',
+			postedAt: parseDate(job.created_at),
+			source: "arbeitnow",
 			sourceId: `arbeit-${job.slug}`,
 		}));
 	} catch (error) {
@@ -43,25 +50,26 @@ export async function fetchArbeitnow() {
 
 export async function fetchTheMuse() {
 	try {
-		const res = await museApi.get(`/public/jobs?api_key=${museApiKey}&page=1&descending=true`);
+		const res = await museApi.get(
+			`/public/jobs?api_key=${museApiKey}&page=1&descending=true`,
+		);
 
 		const results = res.data?.results || [];
 
-		return results?.map((job: TheMuseJob) => ({
+		return results.map((job: TheMuseJob) => ({
 			title: job.name,
-			description:
-				job.contents
-					.replace(/&nbsp;/g, ' ')
-					.replace(/\.\.\./g, '')
-					.replace(/<[^>]+>/g, '')
-					.replace(/\s+/g, ' ')
-					.trim() || '',
-			slug: createSlug(job.name, job.company?.name),
-			company: job.company?.name,
-			location: job.locations?.[0]?.name || 'Remote',
+			description: cleanText(job.contents),
+			slug: createSlug(
+				job.name,
+				job.company?.name || "company",
+			),
+			company: job.company?.name || "Unknown",
+			location: job.locations?.[0]?.name || "Remote",
+			level: job.levels?.[0]?.name,
+			category: job.categories?.[0]?.name,
 			url: job.refs?.landing_page,
-			postedAt: new Date(job.publication_date),
-			source: 'themuse',
+			postedAt: parseDate(job.publication_date),
+			source: "themuse",
 			sourceId: `muse-${job.id}`,
 		}));
 	} catch (error) {
@@ -72,25 +80,30 @@ export async function fetchTheMuse() {
 
 export async function fetchJobicy() {
 	try {
-		const res = await jobicyApi.get('/remote-jobs?count=100');
-
+		const res = await jobicyApi.get("/remote-jobs?count=100");
 		const jobs = res.data?.jobs || [];
 
-		return jobs?.map((job: JobicyJob) => ({
-			title: job.jobTitle?.replace(/<[^>]*>/g, ''),
-			description: job.jobDescription
-				?.replace(/&nbsp;/g, ' ')
-				.replace(/\.\.\./g, '')
-				.replace(/<[^>]+>/g, '')
-				.replace(/\s+/g, ' ')
-				.trim(),
-			slug: createSlug(job.jobTitle, job.companyName),
+		return jobs.map((job: JobicyJob) => ({
+			title: cleanText(job.jobTitle),
+			description: cleanText(job.jobDescription),
+			slug:
+				job.jobSlug ||
+				createSlug(
+					job.jobTitle,
+					job.companyName,
+				),
 			company: job.companyName,
 			companyLogo: job.companyLogo,
-			location: job.jobGeo || 'Remote',
+			location: job.jobGeo || "Remote",
 			level: job.jobLevel,
-			postedAt: new Date(job.pubDate),
-			source: 'jobicy',
+			industry: job.jobIndustry?.[0],
+			type: job.jobType?.[0],
+			url: job.url || job.applyUrl,
+			salaryMin: job.salaryMin,
+			salaryMax: job.salaryMax,
+			salaryCurrency: job.salaryCurrency,
+			postedAt: parseDate(job.pubDate),
+			source: "jobicy",
 			sourceId: `jobicy-${job.id}`,
 		}));
 	} catch (error) {
@@ -103,26 +116,23 @@ export async function fetchJooble() {
 	try {
 		const res = await joobleApi.post(`/${joobleApiKey}`, {
 			keywords: TECH_KEYWORDS,
-			// location: 'Nigeria',
 			page: 1,
 		});
 
 		const jobs = res.data?.jobs || [];
 
-		return jobs?.map((job: JoobleJob) => ({
-			title: job.title,
-			description: job.snippet
-				?.replace(/&nbsp;/g, ' ')
-				.replace(/\.\.\./g, '')
-				.replace(/<[^>]+>/g, '')
-				.replace(/\s+/g, ' ')
-				.trim(),
-			slug: createSlug(job.title, job.company),
-			company: job.company,
-			location: job.location || 'Remote',
+		return jobs.map((job: JoobleJob) => ({
+			title: job.title || "",
+			description: cleanText(job.snippet),
+			slug: createSlug(
+				job.title || "job",
+				job.company || "company",
+			),
+			company: job.company || "Unknown",
+			location: job.location || "Remote",
 			url: job.link,
-			postedAt: new Date(job.updated || Date.now()),
-			source: 'jooble',
+			postedAt: parseDate(job.updated),
+			source: "jooble",
 			sourceId: `jooble-${job.id}`,
 		}));
 	} catch (error) {
@@ -133,8 +143,11 @@ export async function fetchJooble() {
 
 export const createJob = async (data: CreateJobDto) => {
 	try {
-		const response = await appApi.post<ApiResponse<Job>>('/jobs', data);
-		toast.success('Job created successfully');
+		const response = await appApi.post<ApiResponse<Job>>(
+			"/jobs",
+			data,
+		);
+		toast.success("Job created successfully");
 		return response.data.data;
 	} catch (error) {
 		errorHandler(error as AxiosErrorShape | string);
@@ -144,17 +157,29 @@ export const createJob = async (data: CreateJobDto) => {
 
 export const getJobs = async (query?: GetJobsQueryDto) => {
 	try {
-		const response = await appApi.get<ApiResponse<Job[]>>('/jobs', {
-			params: {
-				keyword: query?.keyword || '',
-				location: query?.location || '',
-				level: query?.level || '',
-				category: query?.category || '',
-				datePosted: query?.datePosted || '',
-				page: Number(query?.page),
-				limit: Number(query?.limit) || 50,
+		const response = await appApi.get<ApiResponse<Job[]>>(
+			"/jobs",
+			{
+				params: {
+					keyword: query?.keyword || "",
+					location:
+						query?.location ||
+						"",
+					level: query?.level || "",
+					category:
+						query?.category ||
+						"",
+					datePosted:
+						query?.datePosted ||
+						"",
+					page: Number(query?.page),
+					limit:
+						Number(
+							query?.limit,
+						) || 50,
+				},
 			},
-		});
+		);
 
 		return response?.data?.data;
 	} catch (error) {
@@ -165,14 +190,20 @@ export const getJobs = async (query?: GetJobsQueryDto) => {
 
 export const getJobsSearch = async (query?: GetJobsSearchQueryDto) => {
 	try {
-		const response = await appApi.get<ApiResponse<Job[]>>('/jobs/search', {
-			params: {
-				search: query?.search,
-				location: query?.location,
-				page: Number(query?.page),
-				limit: Number(query?.limit) || 50,
+		const response = await appApi.get<ApiResponse<Job[]>>(
+			"/jobs/search",
+			{
+				params: {
+					search: query?.search,
+					location: query?.location,
+					page: Number(query?.page),
+					limit:
+						Number(
+							query?.limit,
+						) || 50,
+				},
 			},
-		});
+		);
 
 		return response?.data?.data;
 	} catch (error) {
@@ -183,7 +214,9 @@ export const getJobsSearch = async (query?: GetJobsSearchQueryDto) => {
 
 export const getJob = async (slug: string) => {
 	try {
-		const response = await appApi.get<ApiResponse<Job>>(`/jobs/${slug}`);
+		const response = await appApi.get<ApiResponse<Job>>(
+			`/jobs/${slug}`,
+		);
 
 		return response?.data?.data;
 	} catch (error) {
@@ -194,7 +227,10 @@ export const getJob = async (slug: string) => {
 
 export const getJobCategories = async () => {
 	try {
-		const response = await appApi.get<ApiResponse<Category[]>>(`/category`);
+		const response =
+			await appApi.get<ApiResponse<Category[]>>(
+				`/category`,
+			);
 
 		return response?.data?.data;
 	} catch (error) {
@@ -205,7 +241,9 @@ export const getJobCategories = async () => {
 
 export const getCategory = async (categoryId: string) => {
 	try {
-		const response = await appApi.get<ApiResponse<Category>>(`/category/${categoryId}`);
+		const response = await appApi.get<ApiResponse<Category>>(
+			`/category/${categoryId}`,
+		);
 
 		return response?.data?.data;
 	} catch (error) {
