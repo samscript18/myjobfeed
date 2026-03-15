@@ -5,7 +5,7 @@ import {
 } from "../interfaces/pagination.interface";
 import { NormalizedJob } from "../interfaces/job.interface";
 import { googleApiKey } from "../constants/env";
-import { parseDate } from "../utils";
+import { cleanText, parseDate } from "../utils";
 
 export function resolvePaginationQuery(
 	query: ResolvePaginationQuery,
@@ -61,6 +61,9 @@ export function buildUpsertOp(job: NormalizedJob, categoryId: string) {
 					level:
 						job.level ||
 						"Not Specified",
+					type:
+						job.type ||
+						"Not Specified",
 					categoryId,
 					postedAt,
 					source: job.source,
@@ -81,7 +84,7 @@ technology, marketing, healthcare, finance, engineering, sales, design, educatio
 Return ONLY an array of slugs in JSON. No extra text.
 
 Jobs:
-${batch.map((j) => `Title: ${j.title}\nDescription: ${j.description?.slice(0, 500)}`).join("\n\n")}
+${batch.map((j) => `Title: ${j.title}\nDescription: ${cleanText(j.description)?.slice(0, 500)}`).join("\n\n")}
 `;
 	try {
 		const response = await ai.models.generateContent({
@@ -104,3 +107,4 @@ ${batch.map((j) => `Title: ${j.title}\nDescription: ${j.description?.slice(0, 50
 		return batch.map(() => "technology");
 	}
 }
+

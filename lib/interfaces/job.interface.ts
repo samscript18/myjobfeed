@@ -38,19 +38,19 @@ export interface JobicyJob {
 	salaryPeriod?: string;
 }
 
-export interface normalizedJob {
-	title: string;
-	description?: string;
-	company?: string;
-	companyLogo?: string;
-	location?: string;
-	level?: string;
-	url?: string;
-	postedAt?: Date;
-	source: string;
-	sourceId: string;
-	slug: string;
-}
+// export interface normalizedJob {
+// 	title: string;
+// 	description?: string;
+// 	company?: string;
+// 	companyLogo?: string;
+// 	location?: string;
+// 	level?: string;
+// 	url?: string;
+// 	postedAt?: Date;
+// 	source: string;
+// 	sourceId: string;
+// 	slug: string;
+// }
 
 export interface NormalizedJob {
 	title: string;
@@ -88,14 +88,17 @@ export interface IJob {
 	title: string;
 	description?: string;
 	company: string;
+	companyLogo?: string;
 	slug: string;
 	location: string;
 	level: string;
+	type: string;
 	categoryId: string | Category;
 	source: string;
 	sourceId: string;
 	postedAt: Date;
 	url: string;
+	salaryRange?: string
 }
 
 export interface Job extends IJob {

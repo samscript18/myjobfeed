@@ -1,7 +1,8 @@
+import he from 'he';
+
 export const BATCH_SIZE = 20;
 
-export const TECH_KEYWORDS =
-	"software engineer, frontend, backend, fullstack, devops, data scientist, machine learning, ai, product manager, designer, ux, ui, qa, cloud, network engineer, security, it support, mobile developer, android, ios";
+export const TECH_KEYWORDS = "software engineer, frontend, backend, fullstack, devops, data scientist, machine learning, ai, product manager, designer, ux, ui, qa, cloud, network engineer, security, it support, mobile developer, android, ios";
 
 export function createSlug(title: string, company: string) {
 	const clean = (str: string) =>
@@ -40,4 +41,12 @@ export function parseDate(date?: string | number | Date) {
 	}
 
 	return date;
+}
+
+export function sanitizeDescription(rawText: string) {
+	if (!rawText) return "";
+
+	let text = he.decode(rawText);
+
+	return cleanText(text);
 }

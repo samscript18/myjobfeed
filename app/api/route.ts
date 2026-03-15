@@ -1,10 +1,10 @@
-import { seedCategories } from "@/lib/db/seed";
-import {
-	fetchArbeitnow,
-	fetchJobicy,
-	fetchJooble,
-	fetchTheMuse,
-} from "@/lib/services/job.service";
+// import { seedCategories } from "@/lib/db/seed";
+// import {
+// 	fetchArbeitnow,
+// 	fetchJobicy,
+// 	fetchJooble,
+// 	fetchTheMuse,
+// } from "@/lib/services/job.service";
 import { NextResponse } from "next/server";
 
 export async function GET() {
@@ -18,7 +18,9 @@ export async function GET() {
 	// 	success: true,
 	// 	data: { arbeitnow, themuse, jobicy, jooble },
 	// });
+
 	return NextResponse.json({
 		success: true,
+		message: "Welcome to MyJobFeed API",
 	});
 }

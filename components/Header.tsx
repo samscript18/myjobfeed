@@ -10,7 +10,7 @@ import Logo from "./Logo";
 const navLinks = [
   { href: "/jobs", label: "Find Jobs" },
   { href: "/category", label: "Categories" },
-  { href: "/blog", label: "Blog" },
+  // { href: "/blog", label: "Blog" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
 ];
@@ -24,7 +24,7 @@ const Header = () => {
       <div className="container flex h-16 items-center justify-between">
         <Logo />
 
-        <nav className="hidden items-center gap-6 md:flex">
+        <nav className="hidden items-center md:gap-8 lg:gap-14 md:flex">
           {navLinks.map((link) => (
             <Link
               key={link.href}

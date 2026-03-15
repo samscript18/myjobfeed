@@ -80,7 +80,7 @@ export const mockJobs: Job[] = [
 		category: 'Design',
 		experience: '3+ years',
 		description:
-			'Join our design team to create beautiful, user-centered financial products that impact millions of users across Africa.',
+			'Join our design team to create beautiful, user-centered financial products that impact millions of users around you.',
 		responsibilities: [
 			'Design end-to-end user experiences',
 			'Create wireframes and prototypes',

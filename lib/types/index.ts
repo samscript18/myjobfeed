@@ -1,4 +1,4 @@
-export interface CreateJobDto {
+export type PostJob = {
 	title: string;
 	description: string;
 	company: string;
@@ -8,9 +8,9 @@ export interface CreateJobDto {
 	categoryId: string;
 	url: string;
 	salaryRange?: string;
-}
+};
 
-export interface GetJobsQueryDto {
+export type GetJobs = {
 	page?: number;
 	limit?: number;
 	keyword?: string;
@@ -19,11 +19,11 @@ export interface GetJobsQueryDto {
 	level?: string;
 	type?: string;
 	datePosted?: number;
-}
+};
 
-export interface GetJobsSearchQueryDto {
-	page?: number;
-	limit?: number;
-	search?: string;
-	location?: number;
-}
+export type ContactUsType = {
+	name: string;
+	email: string;
+	subject: string;
+	message: string;
+};
