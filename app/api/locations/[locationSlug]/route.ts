@@ -3,8 +3,10 @@ import Job from "@/lib/db/models/job";
 import { resolvePaginationQuery } from "@/lib/helpers";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: NextRequest, { params }: { params: { locationSlug: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ locationSlug: string }> }) {
 	await dbConnect();
+
+	const { locationSlug } = await params;
 
 	try {
 		const { searchParams } = new URL(req.url);
@@ -12,8 +14,8 @@ export async function GET(req: NextRequest, { params }: { params: { locationSlug
 		const queryPage = searchParams.get("page") || 1;
 		const queryLimit = searchParams.get("limit") || 50;
 
-		const locationName = params.locationSlug;
-		// const locationName = params.locationSlug.replace(/-/g, " ");
+		const locationName = locationSlug;
+		// const locationName = locationSlug.replace(/-/g, " ");
 
 		const filter = {
 			location: { $regex: `^${locationName}$`, $options: "i" },

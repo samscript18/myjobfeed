@@ -3,8 +3,10 @@ import Job from "@/lib/db/models/job";
 import { resolvePaginationQuery } from "@/lib/helpers";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: NextRequest, { params }: { params: { companySlug: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ companySlug: string }> }) {
 	await dbConnect();
+
+	const { companySlug } = await params;
 
 	try {
 		const { searchParams } = new URL(req.url);
@@ -12,8 +14,8 @@ export async function GET(req: NextRequest, { params }: { params: { companySlug:
 		const queryPage = searchParams.get("page") || 1;
 		const queryLimit = searchParams.get("limit") || 50;
 
-		const companyName = params.companySlug;
-		// const companyName = params.companySlug.replace(/-/g, " ");
+		const companyName = companySlug;
+		// const companyName = companySlug.replace(/-/g, " ");
 
 		const filter = {
 			company: { $regex: `^${companyName}$`, $options: "i" },
