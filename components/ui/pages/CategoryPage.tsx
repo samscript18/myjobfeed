@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "../button";
 import { useState } from "react";
 
-const CategoryPage = ({ categoryId }: { categoryId: string }) => {
+const CategoryPageUI = ({ categoryId }: { categoryId: string }) => {
 	const router = useRouter();
 	const [page, setPage] = useState<number>(1);
 	const { data: category } = useQuery({
@@ -99,4 +99,4 @@ const CategoryPage = ({ categoryId }: { categoryId: string }) => {
 	);
 };
 
-export default CategoryPage;
+export default CategoryPageUI;

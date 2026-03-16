@@ -1,13 +1,14 @@
-import * as nodemailer from 'nodemailer';
+import * as nodemailer from "nodemailer";
+import { mailerPass, mailerUser } from "../constants/env";
 
 async function transporter() {
 	const account = {
-		user: process.env.MAILER_USER,
-		pass: process.env.MAILER_PASS,
+		user: mailerUser,
+		pass: mailerPass,
 	};
 
 	const mailer = await nodemailer.createTransport({
-		service: 'gmail',
+		service: "gmail",
 		auth: {
 			user: account.user,
 			pass: account.pass,

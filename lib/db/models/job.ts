@@ -11,7 +11,7 @@ const JobSchema = new Schema(
 			default: JobSource.MYJOBFEED,
 			required: true,
 		},
-		slug: { type: String, required: true },
+		slug: { type: String, required: true, unique: true, index: true },
 		title: { type: String, required: true },
 		company: { type: String, required: true },
 		description: {

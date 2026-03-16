@@ -1,0 +1,11 @@
+Implement jobs per company. 
+Frontend - create a page for companies then another page for a company details(summary) and it's available jobs.
+Backend - create endpoints for fetching all companies and jobs of a company including it's details(summary).
+
+Implement jobs per location. 
+Frontend - create a page for locations then another page for available jobs in a location.
+Backend - create endpoints for fetching all locations and jobs of a specific location.
+
+Update ruleBasedCategorize function.
+
+fix a endpoint for getting a specific location or company jobs.(check db for name but i'm using slug)

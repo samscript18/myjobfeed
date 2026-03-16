@@ -171,7 +171,7 @@ export const getJob = async (slug: string) => {
 
 export const getJobCategories = async () => {
 	try {
-		const response = await appApi.get<ApiResponse<Category[]>>(`/category`);
+		const response = await appApi.get<ApiResponse<Category[]>>(`/categories`);
 
 		return response?.data?.data;
 	} catch (error) {
@@ -182,7 +182,7 @@ export const getJobCategories = async () => {
 
 export const getCategory = async (categoryId: string) => {
 	try {
-		const response = await appApi.get<ApiResponse<Category>>(`/category/${categoryId}`);
+		const response = await appApi.get<ApiResponse<Category>>(`/categories/${categoryId}`);
 
 		return response?.data?.data;
 	} catch (error) {
