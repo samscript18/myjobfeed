@@ -1,4 +1,4 @@
-import he from 'he';
+import he from "he";
 
 export const BATCH_SIZE = 20;
 
@@ -14,6 +14,16 @@ export function createSlug(title: string, company: string) {
 			.replace(/^-+|-+$/g, "");
 
 	return `${clean(title)}-${clean(company)}`;
+}
+
+export function createBasicSlug(text: string) {
+	return text
+		.toLowerCase()
+		.normalize("NFD")
+		.replace(/[\u0300-\u036f]/g, "")
+		.replace(/[^\w\s-]/g, "")
+		.replace(/\s+/g, "-")
+		.trim();
 }
 
 export function cleanText(text?: string) {

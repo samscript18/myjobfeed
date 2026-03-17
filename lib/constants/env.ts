@@ -9,3 +9,4 @@ export const googleApiKey = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
 export const museApiKey = process.env.NEXT_PUBLIC_MUSE_API_KEY;
 export const mailerUser = process.env.MAILER_USER;
 export const mailerPass = process.env.MAILER_PASS;
+export const mongoDbUri = process.env.MONGODB_URI;

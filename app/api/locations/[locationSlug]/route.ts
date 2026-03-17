@@ -14,11 +14,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ loca
 		const queryPage = searchParams.get("page") || 1;
 		const queryLimit = searchParams.get("limit") || 50;
 
-		const locationName = locationSlug;
-		// const locationName = locationSlug.replace(/-/g, " ");
-
 		const filter = {
-			location: { $regex: `^${locationName}$`, $options: "i" },
+			locationSlug,
 		};
 
 		const count = await Job.countDocuments(filter);

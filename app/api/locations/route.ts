@@ -9,22 +9,15 @@ export async function GET() {
 		const locations = await Job.aggregate([
 			{
 				$group: {
-					_id: "$location",
+					_id: "$locationSlug",
+					name: { $first: "$location" },
 					jobCount: { $sum: 1 },
 				},
 			},
 			{
 				$project: {
-					name: "$_id",
-					slug: {
-						$toLower: {
-							$replaceAll: {
-								input: "$_id",
-								find: " ",
-								replacement: "-",
-							},
-						},
-					},
+					slug: "$_id",
+					name: 1,
 					jobCount: 1,
 					_id: 0,
 				},

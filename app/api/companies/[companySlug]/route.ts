@@ -14,11 +14,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ comp
 		const queryPage = searchParams.get("page") || 1;
 		const queryLimit = searchParams.get("limit") || 50;
 
-		const companyName = companySlug;
-		// const companyName = companySlug.replace(/-/g, " ");
-
 		const filter = {
-			company: { $regex: `^${companyName}$`, $options: "i" },
+			companySlug,
 		};
 
 		const count = await Job.countDocuments(filter);

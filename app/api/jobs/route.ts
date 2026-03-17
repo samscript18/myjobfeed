@@ -3,7 +3,7 @@ import dbConnect from "@/lib/db/mongodb";
 import { CreateJobDto } from "@/lib/dtos/job.dto";
 import { resolvePaginationQuery } from "@/lib/helpers";
 import { IJob } from "@/lib/interfaces/job.interface";
-import { createSlug } from "@/lib/utils";
+import { createBasicSlug, createSlug } from "@/lib/utils";
 import { CreateJobSchema } from "@/lib/validator";
 import { QueryFilter } from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
@@ -112,12 +112,16 @@ export async function POST(req: NextRequest) {
 		const { title, description, company, url, location, categoryId, level, type, salaryRange } = CreateJobSchema.parse(body);
 
 		const slug = createSlug(title, company);
+		const companySlug = createBasicSlug(company);
+		const locationSlug = createBasicSlug(location);
 		const newJob = await Job.create({
 			sourceId: `myjobfeed-${Date.now()}`,
 			slug,
 			title,
 			company,
+			companySlug,
 			location,
+			locationSlug,
 			categoryId,
 			level,
 			type,

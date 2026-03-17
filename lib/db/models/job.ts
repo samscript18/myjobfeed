@@ -14,6 +14,7 @@ const JobSchema = new Schema(
 		slug: { type: String, required: true, unique: true, index: true },
 		title: { type: String, required: true },
 		company: { type: String, required: true },
+		companySlug: { type: String, index: true },
 		description: {
 			type: String,
 			required: false,
@@ -35,6 +36,7 @@ const JobSchema = new Schema(
 			required: false,
 		},
 		location: { type: String, default: "Remote" },
+		locationSlug: { type: String, index: true },
 		url: { type: String, required: true },
 		salaryRange: {
 			type: String,
