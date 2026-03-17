@@ -8,8 +8,8 @@ import { createBasicSlug } from "../lib/utils";
 
 const backfillLocationSlugs = async () => {
 	const jobs = await Job.find({
-		location: { $exists: true },
-		locationSlug: { $exists: true },
+		location: { $exists: true, $ne: null },
+		locationSlug: { $exists: false },
 	}).lean();
 
 	console.log(`Found ${jobs.length} jobs to update`);
@@ -25,8 +25,8 @@ const backfillLocationSlugs = async () => {
 
 const backfillCompaniesSlugs = async () => {
 	const jobs = await Job.find({
-		company: { $exists: true },
-		companySlug: { $exists: true },
+		company: { $exists: true, $ne: null },
+		companySlug: { $exists: false },
 	}).lean();
 
 	console.log(`Found ${jobs.length} jobs to update`);
