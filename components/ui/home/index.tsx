@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Layout from "@/components/Layout";
 import JobCard from "@/components/JobCard";
-import { mockJobs, categories, mockCategories } from "@/lib/data/mock-data";
+import { mockCategories } from "@/lib/data/mock-data";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -27,8 +27,8 @@ const benefits = [
 ];
 
 const HomePage = () => {
-	const [keyword, setKeyword] = useState("");
-	const [location, setLocation] = useState("");
+	const [keyword, setKeyword] = useState<string>("");
+	const [location, setLocation] = useState<string>("");
 	const router = useRouter();
 
 	const { data, isPending } = useQuery({
@@ -75,7 +75,7 @@ const HomePage = () => {
 							<p className="mt-6 text-lg text-muted-foreground md:text-xl">Discover thousands of opportunities from country&#39;s top companies. Start your career journey today.</p>
 
 							<form onSubmit={handleSearch} className="mt-10">
-								<div className="flex flex-col gap-3 sm:flex-row rounded-xl bg-card border border-border/50 p-2 shadow-lg sm:shadow-xl hover:shadow-xl transition-shadow">
+								<div className="flex flex-col gap-3 sm:flex-row rounded-xl bg-card border border-border/50 p-2 shadow-lg sm:shadow-xl hover:shadow-xl transition-shadow max-md:mx-4 max-lg:max-w-[85%] max-lg:mx-auto">
 									<div className="relative flex-1">
 										<Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
 										<Input
@@ -104,7 +104,7 @@ const HomePage = () => {
 								</div>
 							</form>
 
-							<p className="mt-4 text-sm text-muted-foreground">✓ No sign-up required • ✓ Free to use • ✓ Instant applications</p>
+							<p className="mt-4 text-sm text-muted-foreground max-md:mx-4">✓ No sign-up required • ✓ Free to use • ✓ Instant applications</p>
 						</div>
 					</div>
 				</div>
@@ -181,7 +181,7 @@ const HomePage = () => {
 						<p className="mt-3 text-muted-foreground text-lg">Find your next opportunity in your field</p>
 					</div>
 
-					{isPending ? (
+					{isCategoriesPending ? (
 						<div className="flex justify-center items-center gap-4 my-24">
 							<Loader />
 						</div>

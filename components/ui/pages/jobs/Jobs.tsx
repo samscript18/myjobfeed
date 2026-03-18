@@ -15,6 +15,8 @@ import { Label } from "../../label";
 import { Controller, useForm } from "react-hook-form";
 import { JobLevel, JobType } from "@/lib/enums";
 import { GetJobs } from "@/lib/types";
+import { getPagination } from "@/lib/utils";
+import { Pagination } from "../../pagination";
 
 const Jobs = () => {
 	const searchParams = useSearchParams();
@@ -163,47 +165,7 @@ const Jobs = () => {
 										</div>
 									)}
 
-									{totalPages > 1 && (
-										<div className="flex flex-wrap justify-center items-center gap-2 my-10">
-											<Button
-												variant="outline"
-												size="icon"
-												disabled={page === 1}
-												onClick={() => {
-													setPage((prev) => prev - 1);
-													window.scrollTo(0, 0);
-												}}
-											>
-												<ChevronLeft className="h-4 w-4" />
-											</Button>
-
-											{Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNumber) => (
-												<Button
-													key={pageNumber}
-													variant={page === pageNumber ? "default" : "outline"}
-													className="h-9 w-9 cursor-pointer"
-													onClick={() => {
-														setPage(pageNumber);
-														window.scrollTo(0, 0);
-													}}
-												>
-													{pageNumber}
-												</Button>
-											))}
-
-											<Button
-												variant="outline"
-												size="icon"
-												disabled={page === totalPages}
-												onClick={() => {
-													setPage((prev) => prev + 1);
-													window.scrollTo(0, 0);
-												}}
-											>
-												<ChevronRight className="h-4 w-4" />
-											</Button>
-										</div>
-									)}
+									{totalPages > 1 && <Pagination page={page} totalPages={totalPages} onPageChange={(newPage) => setPage(newPage)} />}
 								</>
 							)}
 						</div>
