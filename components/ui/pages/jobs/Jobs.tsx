@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, MapPin, SlidersHorizontal, X, ChevronRight, ChevronLeft } from "lucide-react";
+import { Search, MapPin, SlidersHorizontal } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -15,8 +15,8 @@ import { Label } from "../../label";
 import { Controller, useForm } from "react-hook-form";
 import { JobLevel, JobType } from "@/lib/enums";
 import { GetJobs } from "@/lib/types";
-import { getPagination } from "@/lib/utils";
 import { Pagination } from "../../pagination";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 
 const Jobs = () => {
 	const searchParams = useSearchParams();
@@ -45,6 +45,81 @@ const Jobs = () => {
 	const jobsCount = data?.meta?.count;
 	const totalPages = data?.meta?.totalPages || 1;
 
+	const filtersContent = (
+		<div className="space-y-6">
+			<div className="flex items-center justify-between md:hidden">
+				<h3 className="font-display font-semibold">Filters</h3>
+				{/* Sheet provides its own close button (top-right). */}
+				<span className="h-5 w-5" aria-hidden="true" />
+			</div>
+			<div className="grid gap-4 grid-cols-1">
+				<div>
+					<Label>Job Type</Label>
+					<Controller
+						name="type"
+						control={control}
+						render={({ field, fieldState }) => (
+							<Select onValueChange={field.onChange} defaultValue={field.value}>
+								<SelectTrigger className="mt-1.5" helperText={fieldState.error?.message}>
+									<SelectValue placeholder="Select job type" className="capitalize" />
+								</SelectTrigger>
+								<SelectContent>
+									{Object.values(JobType).map((type) => (
+										<SelectItem key={type} value={type} className="capitalize">
+											{type.replace("-", " ").toLowerCase()}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						)}
+					/>
+				</div>
+				<div>
+					<Label>Job Level</Label>
+					<Controller
+						name="level"
+						control={control}
+						render={({ field, fieldState }) => (
+							<Select onValueChange={field.onChange} defaultValue={field.value}>
+								<SelectTrigger className="mt-1.5" helperText={fieldState.error?.message}>
+									<SelectValue placeholder="Select job level" className="capitalize" />
+								</SelectTrigger>
+								<SelectContent>
+									{Object.values(JobLevel).map((level) => (
+										<SelectItem key={level} value={level} className="capitalize">
+											{level.replace("-", " ").toLowerCase()}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						)}
+					/>
+				</div>
+				<div>
+					<Label>Category</Label>
+					<Controller
+						name="category"
+						control={control}
+						render={({ field, fieldState }) => (
+							<Select onValueChange={field.onChange} defaultValue={field.value}>
+								<SelectTrigger isLoading={isCategoriesPending} className="mt-1.5" helperText={fieldState.error?.message}>
+									<SelectValue placeholder="Select job category" className="capitalize" />
+								</SelectTrigger>
+								<SelectContent>
+									{categories?.map((category) => (
+										<SelectItem key={category._id} value={category._id} className="capitalize">
+											{category.name}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						)}
+					/>
+				</div>
+			</div>
+		</div>
+	);
+
 	return (
 		<Layout>
 			<section className="border-b bg-card p-8 rounded-xl mt-8">
@@ -69,85 +144,23 @@ const Jobs = () => {
 			</section>
 
 			<section className="flex flex-col md:flex-row gap-8 my-8">
-				<aside className={`${showFilters ? "block" : "hidden"} md:w-[30vw] shrink-0 md:block`}>
-					<div className="sticky top-24 space-y-6">
-						<div className="flex items-center justify-between md:hidden">
-							<h3 className="font-display font-semibold">Filters</h3>
-							<button onClick={() => setShowFilters(false)}>
-								<X className="h-5 w-5" />
-							</button>
+				{/* Mobile: filters as a drawer overlay (prevents layout issues/side-by-side behavior). */}
+				<Sheet open={showFilters} onOpenChange={setShowFilters}>
+					<SheetContent side="left" className="w-11/12 p-0 md:hidden" aria-label="Filters">
+						<div className="h-full overflow-y-auto p-6">
+							{filtersContent}
 						</div>
-						<div className="grid gap-4 grid-cols-1">
-							<div>
-								<Label>Job Type</Label>
-								<Controller
-									name="type"
-									control={control}
-									render={({ field, fieldState }) => (
-										<Select onValueChange={field.onChange} defaultValue={field.value}>
-											<SelectTrigger className="mt-1.5" helperText={fieldState.error?.message}>
-												<SelectValue placeholder="Select job type" className="capitalize" />
-											</SelectTrigger>
-											<SelectContent>
-												{Object.values(JobType).map((type) => (
-													<SelectItem key={type} value={type} className="capitalize">
-														{type.replace("-", " ").toLowerCase()}
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-									)}
-								/>
-							</div>
-							<div>
-								<Label>Job Level</Label>
-								<Controller
-									name="level"
-									control={control}
-									render={({ field, fieldState }) => (
-										<Select onValueChange={field.onChange} defaultValue={field.value}>
-											<SelectTrigger className="mt-1.5" helperText={fieldState.error?.message}>
-												<SelectValue placeholder="Select job level" className="capitalize" />
-											</SelectTrigger>
-											<SelectContent>
-												{Object.values(JobLevel).map((level) => (
-													<SelectItem key={level} value={level} className="capitalize">
-														{level.replace("-", " ").toLowerCase()}
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-									)}
-								/>
-							</div>
-							<div>
-								<Label>Category</Label>
-								<Controller
-									name="category"
-									control={control}
-									render={({ field, fieldState }) => (
-										<Select onValueChange={field.onChange} defaultValue={field.value}>
-											<SelectTrigger isLoading={isCategoriesPending} className="mt-1.5" helperText={fieldState.error?.message}>
-												<SelectValue placeholder="Select job category" className="capitalize" />
-											</SelectTrigger>
-											<SelectContent>
-												{categories?.map((category) => (
-													<SelectItem key={category._id} value={category._id} className="capitalize">
-														{category.name}
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-									)}
-								/>
-							</div>
-						</div>
-					</div>
+					</SheetContent>
+				</Sheet>
+
+				{/* Desktop: inline sidebar */}
+				<aside className="hidden md:block md:w-72 lg:w-80 shrink-0">
+					<div className="sticky top-24">{filtersContent}</div>
 				</aside>
 
 				<div className="flex-1">
 					<p className="mb-4 text-sm text-muted-foreground">{jobsCount} jobs found</p>
-					<div className="max-w-[auto]">
+					<div className="w-full">
 						<div className="grid gap-4 w-full">
 							{isPending ? (
 								<div className="flex justify-center items-center gap-4 my-24">

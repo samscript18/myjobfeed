@@ -25,20 +25,10 @@ const values = [
 	},
 ];
 
-const stats = [
-	{ number: "2,400+", label: "Active Jobs" },
-	{ number: "850+", label: "Companies" },
-	{ number: "50K+", label: "Users" },
-];
-
 const About = () => (
 	<Layout>
-		<section className="relative overflow-hidden py-20 md:py-28 lg:-mx-12 max-lg:mt-8 rounded-2xl">
-			<div className="absolute inset-0 -z-10">
-				<div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-primary/5" />
-			</div>
-
-			<div className="container max-lg: px-2">
+		<section className="relative overflow-hidden py-20 md:py-28 max-lg:mt-8 rounded-2xl max-md:px-4">
+			<div className="container">
 				<div className="mx-auto max-w-3xl text-center">
 					<h1 className="font-display text-5xl md:text-6xl font-bold leading-tight">Transforming Job Search Around You</h1>
 					<p className="mt-6 text-lg text-muted-foreground">MyJobFeed is on a mission to make job searching effortless, accessible, and transparent for everyone.</p>
@@ -48,7 +38,7 @@ const About = () => (
 
 		<section className="py-20">
 			<div className="container">
-				<div className="grid md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
+				<div className="grid md:grid-cols-2 gap-12 items-center w-full mx-auto">
 					<div>
 						<h2 className="font-display text-4xl font-bold mb-6">Our Mission</h2>
 						<p className="text-lg text-muted-foreground mb-4 leading-relaxed">
@@ -86,7 +76,7 @@ const About = () => (
 			</div>
 		</section>
 
-		<section className="py-20 px-8 rounded-xl bg-linear-to-b from-primary/5 to-transparent">
+		<section className="py-20">
 			<div className="container">
 				<div className="text-center mb-16">
 					<h2 className="font-display text-4xl font-bold mb-3">Our Values</h2>
@@ -110,7 +100,7 @@ const About = () => (
 			</div>
 		</section>
 
-		<section className="py-20 bg-linear-to-r from-primary/5 to-transparent lg:-mx-12 rounded-2xl">
+		<section className="py-20 bg-linear-to-r from-primary/5 to-transparent rounded-2xl">
 			<div className="container">
 				<div className="max-w-3xl mx-auto">
 					<h2 className="font-display text-4xl font-bold mb-6 text-center">Looking Ahead</h2>

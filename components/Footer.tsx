@@ -2,9 +2,9 @@ import Link from "next/link";
 import Logo from "./Logo";
 
 const Footer = () => (
-	<footer className="border-t bg-card">
-		<div className="container pt-12 pb-6 lg:px-12 md:px-8 max-md:px-4">
-			<div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+	<footer className="mt-12">
+		<div className="container glass rounded-3xl px-5 pt-10 pb-6 sm:px-8">
+			<div className="grid gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
 				<div>
 					<Logo />
 					<p className="mt-3 text-sm text-muted-foreground">Your gateway to finding the best career opportunities across your country and beyond.</p>
@@ -66,7 +66,7 @@ const Footer = () => (
 					</ul>
 				</div>
 			</div>
-			<div className="mt-10 border-t pt-6 text-center text-sm text-muted-foreground">© {new Date().getFullYear()} MyJobFeed. All rights reserved.</div>
+			<div className="mt-10 border-t border-white/60 pt-6 text-center text-sm text-muted-foreground">© {new Date().getFullYear()} MyJobFeed. All rights reserved.</div>
 		</div>
 	</footer>
 );

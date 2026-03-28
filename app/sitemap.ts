@@ -4,27 +4,37 @@ import Job from "@/lib/db/models/job";
 import dbConnect from "@/lib/db/mongodb";
 
 export default async function sitemap() {
-	await dbConnect();
+	try {
+		await dbConnect();
 
-	const jobs = await Job.find();
-	const categories = await Category.find().select("slug");
+		const jobs = await Job.find();
+		const categories = await Category.find().select("slug");
 
-	const jobUrls = jobs.map((job) => ({
-		url: `${APP_URL}/jobs/${job.slug}`,
-		lastModified: job.updatedAt,
-	}));
+		const jobUrls = jobs.map((job) => ({
+			url: `${APP_URL}/jobs/${job.slug}`,
+			lastModified: job.updatedAt,
+		}));
 
-	const categoryUrls = categories.map((category) => ({
-		url: `${APP_URL}/category/${category.slug}`,
-		lastModified: new Date(),
-	}));
-
-	return [
-		{
-			url: `${APP_URL}`,
+		const categoryUrls = categories.map((category) => ({
+			url: `${APP_URL}/category/${category.slug}`,
 			lastModified: new Date(),
-		},
-		...jobUrls,
-		...categoryUrls,
-	];
+		}));
+
+		return [
+			{
+				url: `${APP_URL}`,
+				lastModified: new Date(),
+			},
+			...jobUrls,
+			...categoryUrls,
+		];
+	} catch (err) {
+		// Allows builds to succeed in environments where MongoDB is temporarily unavailable.
+		return [
+			{
+				url: `${APP_URL}`,
+				lastModified: new Date(),
+			},
+		];
+	}
 }

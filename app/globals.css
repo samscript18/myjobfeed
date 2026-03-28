@@ -104,25 +104,25 @@
 /* Base Variable Definitions */
 @layer base {
   :root {
-    --background: 30 25% 97%;
-    --foreground: 25 15% 18%;
+    --background: 210 40% 98%;
+    --foreground: 218 28% 17%;
     --card: 0 0% 100%;
     --card-foreground: 25 15% 18%;
     --popover: 0 0% 100%;
     --popover-foreground: 25 15% 18%;
-    --primary: 8 72% 62%;
+    --primary: 204 84% 47%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 30 20% 93%;
-    --secondary-foreground: 25 15% 18%;
-    --muted: 30 12% 92%;
-    --muted-foreground: 25 8% 52%;
-    --accent: 25 15% 18%;
+    --secondary: 210 44% 94%;
+    --secondary-foreground: 218 28% 17%;
+    --muted: 210 35% 93%;
+    --muted-foreground: 218 16% 44%;
+    --accent: 196 78% 42%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 30 15% 88%;
-    --input: 30 15% 88%;
-    --ring: 8 72% 62%;
+    --border: 210 24% 84%;
+    --input: 210 24% 84%;
+    --ring: 204 84% 47%;
     --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
@@ -132,7 +132,7 @@
     --sidebar-accent: 240 4.8% 95.9%;
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 8 72% 62%;
+    --sidebar-ring: 204 84% 47%;
 
     --success: 152 55% 45%;
     --success-foreground: 0 0% 100%;
@@ -141,9 +141,12 @@
     --info: 205 75% 50%;
     --info-foreground: 0 0% 100%;
 
-    --hero-gradient: linear-gradient(135deg, hsl(8 72% 62%), hsl(15 80% 55%));
-    --card-shadow: 0 1px 4px 0 hsl(25 15% 18% / 0.05), 0 1px 2px -1px hsl(25 15% 18% / 0.04);
-    --card-shadow-hover: 0 12px 28px -6px hsl(25 15% 18% / 0.1), 0 6px 12px -4px hsl(25 15% 18% / 0.05);
+    --hero-gradient: radial-gradient(circle at 12% 20%, hsl(196 92% 56% / 0.35), transparent 42%), radial-gradient(circle at 85% 10%, hsl(224 90% 62% / 0.32), transparent 38%), linear-gradient(145deg, hsl(211 100% 97%), hsl(201 100% 92%));
+    --card-shadow: 0 10px 30px -16px hsl(215 45% 26% / 0.28);
+    --card-shadow-hover: 0 20px 50px -20px hsl(215 55% 22% / 0.36);
+    --glass-bg: hsl(0 0% 100% / 0.65);
+    --glass-strong: hsl(0 0% 100% / 0.75);
+    --glass-border: hsl(0 0% 100% / 0.55);
   }
 
   .dark {
@@ -177,25 +180,407 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
+    min-height: 100dvh;
+    background-image: var(--hero-gradient);
+    background-attachment: fixed;
   }
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-display;
   }
+
+  h1 {
+    font-size: clamp(2rem, 4vw + 1rem, 4.3rem);
+    line-height: 1.06;
+  }
+
+  h2 {
+    font-size: clamp(1.6rem, 2.8vw + 0.8rem, 3.1rem);
+    line-height: 1.1;
+  }
+
+  h3 {
+    font-size: clamp(1.2rem, 1.5vw + 0.9rem, 2rem);
+  }
 }
 
 @layer components {
+  .glass {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: var(--card-shadow);
+  }
+
+  .glass-strong {
+    background: var(--glass-strong);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: var(--card-shadow);
+  }
+
+  .surface-glow {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .surface-glow::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    background: linear-gradient(140deg, hsl(var(--primary) / 0.24), transparent 45%, hsl(224 90% 62% / 0.2));
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+
+  .surface-glow:hover::after {
+    opacity: 1;
+  }
+
   .hero-section {
     background: var(--hero-gradient);
   }
 
   .job-card {
+    position: relative;
+    overflow: hidden;
     box-shadow: var(--card-shadow);
     transition: box-shadow 0.2s ease, transform 0.2s ease;
+    background: var(--glass-strong);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  .job-card::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    background: linear-gradient(135deg,
+        hsl(var(--primary) / 0.18),
+        transparent 55%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 0;
   }
 
   .job-card:hover {
     box-shadow: var(--card-shadow-hover);
     transform: translateY(-2px);
+  }
+
+  .job-card:hover::before {
+    opacity: 1;
+  }
+
+  .job-card>* {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+@keyframes cosmic-pan {
+  0% {
+    transform: translate3d(-4%, -3%, 0) scale(1);
+    filter: hue-rotate(0deg) saturate(1);
+  }
+
+  50% {
+    transform: translate3d(3%, 2%, 0) scale(1.08);
+    filter: hue-rotate(12deg) saturate(1.18);
+  }
+
+  100% {
+    transform: translate3d(-4%, -3%, 0) scale(1);
+    filter: hue-rotate(0deg) saturate(1);
+  }
+}
+
+@keyframes stars-drift {
+  0% {
+    background-position: 0 0, 0 0, 0 0;
+  }
+
+  100% {
+    background-position: 160px -220px, -240px 180px, 120px -140px;
+  }
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: perspective(1200px) rotateX(2deg) translateY(14px) scale(0.995);
+  }
+
+  to {
+    opacity: 1;
+    transform: perspective(1200px) rotateX(0deg) translateY(0) scale(1);
+  }
+}
+
+@keyframes section-burst {
+  from {
+    opacity: 0;
+    transform: translateY(26px) scale(0.985);
+    filter: blur(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes title-flare {
+  0% {
+    text-shadow: 0 0 0 hsl(var(--primary) / 0);
+  }
+
+  50% {
+    text-shadow: 0 0 28px hsl(var(--primary) / 0.28);
+  }
+
+  100% {
+    text-shadow: 0 0 0 hsl(var(--primary) / 0);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 hsl(var(--primary) / 0.28);
+  }
+
+  70% {
+    box-shadow: 0 0 0 14px hsl(var(--primary) / 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 hsl(var(--primary) / 0);
+  }
+}
+
+@keyframes route-morph-in {
+  from {
+    opacity: 0;
+    transform: perspective(1400px) rotateX(4deg) rotateY(-1.6deg) translateY(20px) scale(0.985);
+    filter: saturate(1.2) blur(9px);
+  }
+
+  to {
+    opacity: 1;
+    transform: perspective(1400px) rotateX(0deg) rotateY(0deg) translateY(0) scale(1);
+    filter: saturate(1) blur(0);
+  }
+}
+
+@keyframes aurora-sweep {
+  0% {
+    background-position: 0% 50%, 50% 50%, 50% 50%;
+  }
+
+  100% {
+    background-position: 100% 50%, 58% 44%, 42% 56%;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .route-shell {
+    animation: route-morph-in 0.72s cubic-bezier(0.17, 0.84, 0.24, 1) both;
+    transform-origin: 50% 0%;
+  }
+
+  .site-parallax {
+    opacity: 0.8;
+    will-change: transform;
+    transition: transform 120ms linear;
+  }
+
+  .site-parallax--near {
+    background:
+      radial-gradient(42rem 30rem at 8% 18%, hsl(191 98% 58% / 0.22), transparent 70%),
+      radial-gradient(38rem 28rem at 86% 20%, hsl(224 98% 65% / 0.18), transparent 68%),
+      radial-gradient(30rem 24rem at 56% 86%, hsl(206 98% 64% / 0.16), transparent 70%);
+    transform: translate3d(calc(var(--mx, 0) * 18px), calc(var(--my, 0) * 20px - var(--scroll-progress, 0) * 120px), 0) scale(1.06);
+    animation: aurora-sweep 18s linear infinite alternate;
+    background-size: 180% 180%, 160% 160%, 170% 170%;
+  }
+
+  .site-parallax--far {
+    background:
+      radial-gradient(55rem 40rem at 18% 82%, hsl(196 100% 60% / 0.14), transparent 72%),
+      radial-gradient(50rem 38rem at 76% 74%, hsl(228 100% 66% / 0.12), transparent 74%);
+    transform: translate3d(calc(var(--mx, 0) * -10px), calc(var(--my, 0) * -8px - var(--scroll-progress, 0) * 60px), 0) scale(1.08);
+    animation: aurora-sweep 25s linear infinite alternate-reverse;
+    background-size: 170% 170%, 170% 170%;
+    filter: blur(2px);
+  }
+
+  .cursor-spotlight {
+    background:
+      radial-gradient(36rem 36rem at var(--cursor-x, 50%) var(--cursor-y, 18%), hsl(0 0% 100% / 0.22), transparent 54%),
+      radial-gradient(24rem 24rem at var(--cursor-x, 50%) var(--cursor-y, 18%), hsl(198 100% 65% / 0.24), transparent 62%);
+    mix-blend-mode: screen;
+    opacity: 0.55;
+    transition: opacity 180ms ease;
+  }
+
+  .site-chrome:has(a:hover) .cursor-spotlight,
+  .site-chrome:has(button:hover) .cursor-spotlight {
+    opacity: 0.72;
+  }
+
+  .app-shell>header {
+    animation: section-burst 0.85s cubic-bezier(0.18, 0.8, 0.22, 1) both;
+    animation-delay: 40ms;
+  }
+
+  .app-shell>footer {
+    animation: section-burst 1s cubic-bezier(0.18, 0.8, 0.22, 1) both;
+    animation-delay: 380ms;
+  }
+
+  .site-chrome::before,
+  .site-chrome::after {
+    content: "";
+    position: absolute;
+    inset: -12% -6% auto;
+    height: 56dvh;
+    pointer-events: none;
+    z-index: -20;
+    border-radius: 9999px;
+    background:
+      radial-gradient(circle at 12% 28%, hsl(193 100% 60% / 0.28), transparent 34%),
+      radial-gradient(circle at 78% 18%, hsl(220 100% 64% / 0.24), transparent 32%),
+      radial-gradient(circle at 48% 80%, hsl(201 92% 58% / 0.22), transparent 40%);
+    filter: blur(18px);
+    animation: cosmic-pan 16s ease-in-out infinite;
+  }
+
+  .site-chrome::after {
+    inset: auto -8% 0;
+    height: 62dvh;
+    animation-duration: 22s;
+    animation-direction: reverse;
+    opacity: 0.9;
+  }
+
+  .site-nebula {
+    background: radial-gradient(circle at center, hsl(196 92% 56% / 0.35), transparent 62%);
+    mix-blend-mode: screen;
+    animation: cosmic-pan 20s ease-in-out infinite;
+  }
+
+  .site-stars {
+    background-image:
+      radial-gradient(1px 1px at 10% 22%, hsl(0 0% 100% / 0.6), transparent),
+      radial-gradient(1px 1px at 72% 61%, hsl(0 0% 100% / 0.54), transparent),
+      radial-gradient(1.2px 1.2px at 34% 78%, hsl(0 0% 100% / 0.45), transparent);
+    background-repeat: repeat;
+    background-size: 320px 320px, 420px 420px, 520px 520px;
+    animation: stars-drift 32s linear infinite;
+    opacity: 0.5;
+  }
+
+  .page-stage {
+    animation: page-enter 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    transform-origin: 50% 0%;
+  }
+
+  .app-main section {
+    opacity: 0;
+    animation: section-burst 0.95s cubic-bezier(0.18, 0.8, 0.22, 1) both;
+  }
+
+  .app-main section:nth-of-type(1) {
+    animation-delay: 90ms;
+  }
+
+  .app-main section:nth-of-type(2) {
+    animation-delay: 170ms;
+  }
+
+  .app-main section:nth-of-type(3) {
+    animation-delay: 250ms;
+  }
+
+  .app-main section:nth-of-type(4) {
+    animation-delay: 330ms;
+  }
+
+  .app-main section:nth-of-type(5) {
+    animation-delay: 410ms;
+  }
+
+  .app-main h1,
+  .app-main h2 {
+    animation: title-flare 6.5s ease-in-out infinite;
+  }
+
+  .app-main :is(button, a, [role="button"]) {
+    transition: transform 0.22s ease, box-shadow 0.24s ease, filter 0.24s ease;
+    will-change: transform;
+  }
+
+  .app-main :is(button, a, [role="button"]):hover {
+    transform: translateY(-2px) scale(1.02);
+    filter: brightness(1.04);
+  }
+
+  .app-main :is(button, [role="button"]):focus-visible {
+    animation: pulse-ring 1.2s ease-out 1;
+  }
+
+  .app-main :is(input, textarea, select) {
+    transition: transform 0.2s ease, box-shadow 0.25s ease, border-color 0.2s ease;
+  }
+
+  .app-main :is(input, textarea, select):focus-visible {
+    transform: translateY(-1px) scale(1.01);
+    box-shadow: 0 10px 24px -16px hsl(var(--primary) / 0.65);
+  }
+
+  .app-main .job-card,
+  .app-main .glass,
+  .app-main .glass-strong,
+  .app-main [class*="rounded-2xl border"] {
+    transition: transform 0.26s ease, box-shadow 0.3s ease, border-color 0.22s ease;
+  }
+
+  .app-main .job-card:hover,
+  .app-main .glass:hover,
+  .app-main .glass-strong:hover,
+  .app-main [class*="rounded-2xl border"]:hover {
+    transform: translateY(-4px) scale(1.008);
+    box-shadow: 0 28px 45px -26px hsl(211 45% 22% / 0.45);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .route-shell,
+  .site-parallax,
+  .cursor-spotlight,
+  .app-shell>header,
+  .app-shell>footer,
+  .site-chrome::before,
+  .site-chrome::after,
+  .site-nebula,
+  .site-stars,
+  .page-stage,
+  .app-main section,
+  .app-main h1,
+  .app-main h2 {
+    animation: none !important;
+  }
+
+  .app-main :is(button, a, [role="button"], input, textarea, select) {
+    transition: none !important;
   }
 }

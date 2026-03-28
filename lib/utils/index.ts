@@ -56,7 +56,7 @@ export function parseDate(date?: string | number | Date) {
 export function sanitizeDescription(rawText: string) {
 	if (!rawText) return "";
 
-	let text = he.decode(rawText);
+	const text = he.decode(rawText);
 
 	return cleanText(text);
 }

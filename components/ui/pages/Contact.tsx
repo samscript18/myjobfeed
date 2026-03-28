@@ -7,12 +7,35 @@ import { Label } from "@/components/ui/label";
 import Layout from "@/components/Layout";
 import { Card } from "@/components/ui/card";
 import { ContactUsType } from "@/lib/types";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import { contactUs } from "@/lib/services/contact.service";
 import { toast } from "sonner";
+import { ChevronDown } from "lucide-react";
 
 const Contact = () => {
+	const [openFaq, setOpenFaq] = useState<string>("faq-0");
+
+	const faqs = [
+		{
+			q: "Is MyJobFeed really free?",
+			a: "Yes! Job searching and applying is completely free for everyone. No hidden fees or subscriptions needed.",
+		},
+		{
+			q: "How long does it take to get a response?",
+			a: "We typically respond to inquiries within 24 business hours. During peak times, it may take up to 48 hours.",
+		},
+		{
+			q: "Can I post jobs on MyJobFeed?",
+			a: "Yes! Employers can post jobs for free. Just head to our Post a Job page and follow the simple steps.",
+		},
+		{
+			q: "What areas does MyJobFeed cover?",
+			a: "We focus on opportunities across your country.",
+		},
+	];
+
 	const {
 		handleSubmit,
 		register,
@@ -36,11 +59,7 @@ const Contact = () => {
 
 	return (
 		<Layout>
-			<section className="relative overflow-hidden py-20 md:py-28 -mx-12 max-md:-mx-4">
-				<div className="absolute inset-0 -z-10">
-					<div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-primary/5" />
-				</div>
-
+			<section className="relative overflow-hidden py-20 md:py-28 max-md:px-4">
 				<div className="container">
 					<div className="mx-auto max-w-3xl text-center">
 						<h1 className="font-display text-5xl md:text-6xl font-bold leading-tight">Get In Touch</h1>
@@ -137,7 +156,11 @@ const Contact = () => {
 									/>
 								</div>
 
-								<Button type="submit" className="w-full h-11 bg-linear-to-r from-primary to-primary/90 text-white font-semibold hover:shadow-lg transition-all" disabled={contactUsPending}>
+								<Button
+									type="submit"
+									className="w-full h-11 bg-linear-to-r from-primary to-primary/90 text-white font-semibold hover:shadow-lg transition-all"
+									disabled={contactUsPending}
+								>
 									{contactUsPending ? "Sending..." : "Send Message"}
 								</Button>
 							</form>
@@ -209,30 +232,39 @@ const Contact = () => {
 						<p className="text-muted-foreground text-lg">Quick answers to common questions</p>
 					</div>
 
-					<div className="max-w-2xl mx-auto space-y-4">
-						{[
-							{
-								q: "Is MyJobFeed really free?",
-								a: "Yes! Job searching and applying is completely free for everyone. No hidden fees or subscriptions needed.",
-							},
-							{
-								q: "How long does it take to get a response?",
-								a: "We typically respond to inquiries within 24 business hours. During peak times, it may take up to 48 hours.",
-							},
-							{
-								q: "Can I post jobs on MyJobFeed?",
-								a: "Yes! Employers can post jobs for free. Just head to our Post a Job page and follow the simple steps.",
-							},
-							{
-								q: "What areas does MyJobFeed cover?",
-								a: "We focus on opportunities across your country.",
-							},
-						].map((faq, i) => (
-							<Card key={i} className="p-6 hover:shadow-md transition-all">
-								<h4 className="font-semibold text-lg mb-2">{faq.q}</h4>
-								<p className="text-muted-foreground">{faq.a}</p>
-							</Card>
-						))}
+					<div className="w-full md:w-[75vw] mx-auto">
+						<div className="space-y-4">
+							{faqs.map((faq, i) => {
+								const faqId = `faq-${i}`;
+								const isOpen = openFaq === faqId;
+
+								return (
+									<div
+										key={faq.q}
+										data-state={isOpen ? "open" : "closed"}
+										className="group overflow-hidden rounded-2xl border border-border/70 bg-background/80 backdrop-blur-xs shadow-xs transition-all hover:border-primary/40 hover:shadow-md data-[state=open]:border-primary/50 data-[state=open]:bg-primary/5"
+									>
+										<button
+											type="button"
+											onClick={() => setOpenFaq(isOpen ? "" : faqId)}
+											aria-expanded={isOpen}
+											aria-controls={`${faqId}-content`}
+											className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left font-semibold text-lg leading-snug cursor-pointer"
+										>
+											<span>{faq.q}</span>
+											<span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary transition-colors group-data-[state=open]:bg-primary/20">
+												<ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
+											</span>
+										</button>
+										{isOpen ? (
+											<div id={`${faqId}-content`} className="overflow-hidden text-muted-foreground animate-accordion-down">
+												<div className="px-6 pb-6 pt-1 text-base leading-relaxed">{faq.a}</div>
+											</div>
+										) : null}
+									</div>
+								);
+							})}
+						</div>
 					</div>
 				</div>
 			</section>

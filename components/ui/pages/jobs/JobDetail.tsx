@@ -9,16 +9,14 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { getJob, getJobs } from "@/lib/services/job.service";
 import { Category } from "@/lib/interfaces/job.interface";
-import { useRouter } from "next/navigation";
 import Loader from "@/components/Loader";
-import { sanitizeDescription } from "@/lib/utils";
+import JobDescription from "@/components/ui/pages/jobs/JobDescription";
 
 interface JobDetailProps {
 	jobSlug: string;
 }
 
 const JobDetail = ({ jobSlug }: JobDetailProps) => {
-	const router = useRouter();
 	const { data: job, isLoading } = useQuery({
 		queryFn: () => getJob(jobSlug),
 		queryKey: ["get-job", jobSlug],
@@ -48,7 +46,12 @@ const JobDetail = ({ jobSlug }: JobDetailProps) => {
 
 	const relatedJobs = jobs?.filter((j) => (j.categoryId as Category)._id === (job?.categoryId as Category)._id && j._id !== job?._id).slice(0, 3) || [];
 
-	const isEmail = job?.url.includes("@") && !job?.url.includes("https");
+	const isEmail = !!job?.url && job.url.includes("@") && !job.url.includes("https");
+	const datePosted = job?.postedAt ?? job?.createdAt;
+	const jobDescription = job?.description
+		?.replace('<p>Find <a href="https://www.arbeitnow.com/">Jobs in Germany</a> on Arbeitnow</a>', "")
+		.replace('<p>Find more <a href="https://www.arbeitnow.com/english-speaking-jobs">English Speaking Jobs in Germany</a> on Arbeitnow</a>', "");
+	console.log("Parsed Job Description:", jobDescription);
 
 	return (
 		<Layout>
@@ -87,7 +90,7 @@ const JobDetail = ({ jobSlug }: JobDetailProps) => {
 											</span>
 											<span className="flex items-center gap-1">
 												<Clock className="h-4 w-4" />
-												{new Date(job?.postedAt! || job?.createdAt!).toDateString()}
+												{datePosted ? new Date(datePosted).toDateString() : null}
 											</span>
 										</div>
 										<div className="mt-4 flex flex-wrap gap-2">
@@ -108,7 +111,7 @@ const JobDetail = ({ jobSlug }: JobDetailProps) => {
 												</span>
 											</p>
 											<Button
-												onClick={() => (window.location.href = `mailto:${job?.url}?subject=${encodeURIComponent(job?.title!)}`)}
+												onClick={() => (window.location.href = `mailto:${job?.url ?? ""}?subject=${encodeURIComponent(job?.title ?? "")}`)}
 												className="mt-4 w-full bg-accent cursor-pointer text-accent-foreground sm:w-auto"
 											>
 												Send Email
@@ -129,26 +132,10 @@ const JobDetail = ({ jobSlug }: JobDetailProps) => {
 							<div className="mt-6 space-y-6 rounded-lg border bg-card p-6">
 								<div>
 									<h2 className="font-display text-lg font-semibold">Job Description</h2>
-									<p className="mt-2 text-muted-foreground leading-relaxed whitespace-pre-line">{sanitizeDescription(job?.description!)}</p>
+									<div className="mt-2">
+										<JobDescription rawHtml={jobDescription} />
+									</div>
 								</div>
-								{/* <div>
-                <h2 className="font-display text-lg font-semibold">Responsibilities</h2>
-                <ul className="mt-2 list-disc space-y-1 pl-5 text-muted-foreground">
-                  {job?.responsibilities.map((r, i) => <li key={i}>{r}</li>)}
-                </ul>
-              </div>
-              <div>
-                <h2 className="font-display text-lg font-semibold">Requirements</h2>
-                <ul className="mt-2 list-disc space-y-1 pl-5 text-muted-foreground">
-                  {job?.requirements.map((r, i) => <li key={i}>{r}</li>)}
-                </ul>
-              </div>
-              <div>
-                <h2 className="font-display text-lg font-semibold">Benefits</h2>
-                <ul className="mt-2 list-disc space-y-1 pl-5 text-muted-foreground">
-                  {job?.benefits.map((b, i) => <li key={i}>{b}</li>)}
-                </ul>
-              </div> */}
 							</div>
 						</div>
 
@@ -192,7 +179,7 @@ const JobDetail = ({ jobSlug }: JobDetailProps) => {
 												</span>
 											</p>
 											<Button
-												onClick={() => (window.location.href = `mailto:${job?.url}?subject=${encodeURIComponent(job?.title!)}`)}
+												onClick={() => (window.location.href = `mailto:${job?.url ?? ""}?subject=${encodeURIComponent(job?.title ?? "")}`)}
 												className="mt-4 w-full bg-accent cursor-pointer text-accent-foreground sm:w-auto"
 											>
 												Send Email

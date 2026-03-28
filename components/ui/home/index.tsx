@@ -55,11 +55,7 @@ const HomePage = () => {
 
 	return (
 		<Layout>
-			<section className="relative overflow-hidden py-24 min-w-screen lg:py-32 lg:-mx-12 md:-ml-6 -ml-4">
-				<div className="absolute inset-0 -z-10">
-					<div className="absolute inset-0 bg-linear-to-br from-primary/10 via-transparent to-accent/10" />
-				</div>
-
+			<section className="relative overflow-hidden py-24 w-full lg:py-32">
 				<div className="container">
 					<div className="mx-auto lg:max-w-4xl">
 						<div className="text-center">
@@ -75,7 +71,7 @@ const HomePage = () => {
 							<p className="mt-6 text-lg text-muted-foreground md:text-xl">Discover thousands of opportunities from country&#39;s top companies. Start your career journey today.</p>
 
 							<form onSubmit={handleSearch} className="mt-10">
-								<div className="flex flex-col gap-3 sm:flex-row rounded-xl bg-card border border-border/50 p-2 shadow-lg sm:shadow-xl hover:shadow-xl transition-shadow max-md:mx-4 max-lg:max-w-[85%] max-lg:mx-auto">
+								<div className="flex flex-col gap-3 sm:flex-row rounded-xl bg-card border border-border/50 p-2 shadow-lg sm:shadow-xl hover:shadow-xl transition-shadow max-md:max-w-full max-lg:max-w-[85%] max-lg:mx-auto">
 									<div className="relative flex-1">
 										<Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
 										<Input
@@ -150,7 +146,7 @@ const HomePage = () => {
 				</div>
 			</section>
 
-			<section className="py-16 px-8 rounded-xl bg-linear-to-br from-secondary/50 to-primary/5">
+			<section className="py-16 rounded-xl bg-linear-to-br from-secondary/50 to-primary/5">
 				<div className="container">
 					<div className="text-center mb-12">
 						<h2 className="font-display text-4xl font-bold">Why Choose MyJobFeed?</h2>
@@ -201,7 +197,7 @@ const HomePage = () => {
 				</div>
 			</section>
 
-			<section className="py-20 bg-linear-to-r from-primary via-primary to-primary/90 relative overflow-hidden">
+			<section className="py-20 max-md:px-4 bg-linear-to-r from-primary via-primary to-primary/90 relative overflow-hidden rounded-2xl">
 				<div className="absolute inset-0 opacity-10">
 					<div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA2MCAwIEwgMCAwIEwgMCA2MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] bg-repeat" />
 				</div>
@@ -240,7 +236,7 @@ const HomePage = () => {
 					<div className="text-center">
 						<Link href="/jobs">
 							<Button variant="outline" size="lg" className="border-primary/20 hover:bg-primary/90">
-								Browse All {jobs?.length} Jobs <ArrowRight className="ml-2 h-4 w-4" />
+								Browse All Jobs <ArrowRight className="ml-2 h-4 w-4" />
 							</Button>
 						</Link>
 					</div>
