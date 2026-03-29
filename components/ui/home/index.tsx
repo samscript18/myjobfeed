@@ -6,13 +6,15 @@ import { Input } from "@/components/ui/input";
 import Layout from "@/components/Layout";
 import JobCard from "@/components/JobCard";
 import { mockCategories } from "@/lib/data/mock-data";
-import { useState } from "react";
+import { Job } from "@/lib/interfaces/job.interface";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { getJobCategories, getJobs } from "@/lib/services/job.service";
 import Loader from "@/components/Loader";
+import { getRandomSubset } from "@/lib/helpers";
 
 const stats = [
 	{ label: "Active Jobs", value: "2,400+", icon: TrendingUp },
@@ -29,6 +31,7 @@ const benefits = [
 const HomePage = () => {
 	const [keyword, setKeyword] = useState<string>("");
 	const [location, setLocation] = useState<string>("");
+	const [featuredJobs, setFeaturedJobs] = useState<Job[]>([]);
 	const router = useRouter();
 
 	const { data, isPending } = useQuery({
@@ -43,8 +46,6 @@ const HomePage = () => {
 
 	const jobs = data?.data || [];
 
-	const featuredJobs = jobs?.slice(0, 6) || [];
-
 	const handleSearch = (e: React.FormEvent) => {
 		e.preventDefault();
 		const params = new URLSearchParams();
@@ -52,6 +53,19 @@ const HomePage = () => {
 		if (location) params.set("location", location);
 		router.push(`/jobs?${params.toString()}`);
 	};
+
+	useEffect(() => {
+		const featuredWindow = 14;
+		const cutoffDate = new Date(Date.now() - featuredWindow * 24 * 60 * 60 * 1000);
+		if (data?.data) {
+			setFeaturedJobs(
+				getRandomSubset(
+					data?.data?.filter((job) => new Date(job.postedAt) >= cutoffDate),
+					6,
+				),
+			);
+		}
+	}, [data?.data]);
 
 	return (
 		<Layout>
@@ -68,7 +82,7 @@ const HomePage = () => {
 								Your <span className="bg-linear-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">Dream Job</span> Awaits
 							</h1>
 
-							<p className="mt-6 text-lg text-muted-foreground md:text-xl">Discover thousands of opportunities from country&#39;s top companies. Start your career journey today.</p>
+							<p className="mt-6 text-lg text-muted-foreground md:text-xl">Discover thousands of opportunities from leading companies. Start your career journey today.</p>
 
 							<form onSubmit={handleSearch} className="mt-10">
 								<div className="flex flex-col gap-3 sm:flex-row rounded-xl bg-card border border-border/50 p-2 shadow-lg sm:shadow-xl hover:shadow-xl transition-shadow max-md:max-w-full max-lg:max-w-[85%] max-lg:mx-auto">
@@ -93,14 +107,14 @@ const HomePage = () => {
 									<Button
 										type="submit"
 										size="lg"
-										className="h-12 bg-linear-to-r from-primary to-primary/90 text-white hover:shadow-lg transition-all font-semibold px-8 rounded-lg"
+										className="h-12 bg-linear-to-r from-primary to-primary/90 text-white hover:shadow-lg transition-all font-semibold px-8 rounded-lg cursor-pointer"
 									>
 										Search
 									</Button>
 								</div>
 							</form>
 
-							<p className="mt-4 text-sm text-muted-foreground max-md:mx-4">✓ No sign-up required • ✓ Free to use • ✓ Instant applications</p>
+							<p className="mt-4 text-sm text-muted-foreground max-md:mx-4">✓ No sign-up required ✓ Free to use ✓ Instant applications</p>
 						</div>
 					</div>
 				</div>
@@ -133,13 +147,19 @@ const HomePage = () => {
 							View all jobs <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
 						</Link>
 					</div>
-					<div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-						{featuredJobs.map((job) => (
-							<JobCard key={job._id} job={job} />
-						))}
-					</div>
+					{isPending ? (
+						<div className="flex justify-center items-center gap-4 my-24">
+							<Loader />
+						</div>
+					) : (
+						<div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+							{featuredJobs.map((job) => (
+								<JobCard key={job._id} job={job} />
+							))}
+						</div>
+					)}
 					<Link href="/jobs" className="md:hidden mt-8 flex justify-center">
-						<Button variant="outline" size="lg" className="w-full sm:w-auto">
+						<Button variant="outline" size="lg" className="w-full sm:w-auto cursor-pointer">
 							View all jobs <ArrowRight className="ml-2 h-4 w-4" />
 						</Button>
 					</Link>
@@ -208,7 +228,7 @@ const HomePage = () => {
 						<p className="mt-4 text-lg opacity-90">Reach thousands of talented professionals and find your next team member. It&#39;s completely free!</p>
 
 						<Link href="/post-job" className="mt-8 inline-block">
-							<Button size="lg" className="bg-white text-primary hover:bg-white/90 font-semibold shadow-lg">
+							<Button size="lg" className="bg-white text-primary hover:bg-white/90 font-semibold shadow-lg cursor-pointer">
 								Post Your Job Now <ArrowRight className="ml-2 h-4 w-4" />
 							</Button>
 						</Link>
@@ -235,7 +255,7 @@ const HomePage = () => {
 
 					<div className="text-center">
 						<Link href="/jobs">
-							<Button variant="outline" size="lg" className="border-primary/20 hover:bg-primary/90">
+							<Button variant="outline" size="lg" className="border-primary/20 hover:bg-primary/90 cursor-pointer">
 								Browse All Jobs <ArrowRight className="ml-2 h-4 w-4" />
 							</Button>
 						</Link>

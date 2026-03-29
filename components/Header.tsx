@@ -39,7 +39,7 @@ const Header = () => {
 
 					<div className="hidden items-center gap-3 md:flex">
 						<Link href="/post-job">
-							<Button className="rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 font-semibold shadow-lg shadow-primary/30">Post a Job</Button>
+							<Button className="rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 font-semibold shadow-lg shadow-primary/30 cursor-pointer">Post a Job</Button>
 						</Link>
 					</div>
 
@@ -63,7 +63,7 @@ const Header = () => {
 							</Link>
 						))}
 						<Link href="/post-job" onClick={() => setMobileOpen(false)}>
-							<Button className="w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 font-semibold">Post a Job</Button>
+							<Button className="w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 font-semibold cursor-pointer">Post a Job</Button>
 						</Link>
 					</nav>
 				</div>

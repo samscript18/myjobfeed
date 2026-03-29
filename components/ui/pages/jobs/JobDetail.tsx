@@ -8,15 +8,18 @@ import JobCard from "@/components/JobCard";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { getJob, getJobs } from "@/lib/services/job.service";
-import { Category } from "@/lib/interfaces/job.interface";
+import { Category, Job } from "@/lib/interfaces/job.interface";
 import Loader from "@/components/Loader";
 import JobDescription from "@/components/ui/pages/jobs/JobDescription";
+import { extractKeywords, getRandomSubset } from "@/lib/helpers";
+import { useEffect, useState } from "react";
 
 interface JobDetailProps {
 	jobSlug: string;
 }
 
 const JobDetail = ({ jobSlug }: JobDetailProps) => {
+	const [relatedJobs, setRelatedJobs] = useState<Job[]>([]);
 	const { data: job, isLoading } = useQuery({
 		queryFn: () => getJob(jobSlug),
 		queryKey: ["get-job", jobSlug],
@@ -44,14 +47,30 @@ const JobDetail = ({ jobSlug }: JobDetailProps) => {
 		);
 	}
 
-	const relatedJobs = jobs?.filter((j) => (j.categoryId as Category)._id === (job?.categoryId as Category)._id && j._id !== job?._id).slice(0, 3) || [];
-
 	const isEmail = !!job?.url && job.url.includes("@") && !job.url.includes("https");
 	const datePosted = job?.postedAt ?? job?.createdAt;
 	const jobDescription = job?.description
 		?.replace('<p>Find <a href="https://www.arbeitnow.com/">Jobs in Germany</a> on Arbeitnow</a>', "")
 		.replace('<p>Find more <a href="https://www.arbeitnow.com/english-speaking-jobs">English Speaking Jobs in Germany</a> on Arbeitnow</a>', "");
-	console.log("Parsed Job Description:", jobDescription);
+
+	useEffect(() => {
+		const featuredWindow = 14;
+		const cutoffDate = new Date(Date.now() - featuredWindow * 24 * 60 * 60 * 1000);
+		if (data?.data) {
+			const filteredJobs = jobs?.filter((j) => {
+				if ((j.categoryId as Category)?._id === (job?.categoryId as Category)?._id && j._id !== job?._id) {
+					const text = j.title.toLowerCase();
+					const jobKeywords = extractKeywords(text);
+					const currentKeywords = extractKeywords(job?.title!?.toLowerCase());
+					return jobKeywords.some((k) => currentKeywords.includes(k)) && new Date(j.postedAt) >= cutoffDate;
+				}
+
+				return [];
+			});
+
+			setRelatedJobs(getRandomSubset(filteredJobs, 4));
+		}
+	}, [data?.data]);
 
 	return (
 		<Layout>
@@ -112,7 +131,7 @@ const JobDetail = ({ jobSlug }: JobDetailProps) => {
 											</p>
 											<Button
 												onClick={() => (window.location.href = `mailto:${job?.url ?? ""}?subject=${encodeURIComponent(job?.title ?? "")}`)}
-												className="mt-4 w-full bg-accent cursor-pointer text-accent-foreground sm:w-auto"
+												className="mt-4 w-full bg-accent cursor-pointer text-accent-foreground sm:w-auto cursor-pointer"
 											>
 												Send Email
 											</Button>
@@ -180,7 +199,7 @@ const JobDetail = ({ jobSlug }: JobDetailProps) => {
 											</p>
 											<Button
 												onClick={() => (window.location.href = `mailto:${job?.url ?? ""}?subject=${encodeURIComponent(job?.title ?? "")}`)}
-												className="mt-4 w-full bg-accent cursor-pointer text-accent-foreground sm:w-auto"
+												className="mt-4 w-full bg-accent cursor-pointer text-accent-foreground sm:w-auto cursor-pointer"
 											>
 												Send Email
 											</Button>

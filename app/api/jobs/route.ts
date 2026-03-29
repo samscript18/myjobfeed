@@ -18,6 +18,7 @@ export async function GET(req: NextRequest) {
 		const location = searchParams.get("location");
 		const categoryId = searchParams.get("categoryId");
 		const level = searchParams.get("level");
+		const type = searchParams.get("type");
 		const datePosted = searchParams.get("datePosted");
 		const queryPage = searchParams.get("page") || 1;
 		const queryLimit = searchParams.get("limit") || 50;
@@ -28,12 +29,6 @@ export async function GET(req: NextRequest) {
 			filter.$or = [
 				{
 					title: {
-						$regex: keyword,
-						$options: "i",
-					},
-				},
-				{
-					description: {
 						$regex: keyword,
 						$options: "i",
 					},
@@ -58,6 +53,7 @@ export async function GET(req: NextRequest) {
 			};
 		if (categoryId) filter.categoryId = categoryId;
 		if (level) filter.level = level;
+		if (type) filter.type = type;
 		if (datePosted) {
 			const days = parseInt(datePosted as string, 10);
 			if (!isNaN(days)) {

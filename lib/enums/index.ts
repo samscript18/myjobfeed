@@ -4,6 +4,9 @@ export enum JobSource {
 	JOOBLE = "jooble",
 	JOBICY = "jobicy",
 	MYJOBFEED = "myjobfeed",
+	FINDWORK = "findwork",
+	REMOTIVE = "remotive",
+	JOBDATA = "jobdata",
 }
 
 export enum JobType {
@@ -11,13 +14,15 @@ export enum JobType {
 	PART_TIME = "part-time",
 	CONTRACT = "contract",
 	INTERNSHIP = "internship",
+	VOLUNTEER = "volunteer",
+	APPRENTICESHIP = "apprenticeship",
 }
 
 export enum JobLevel {
 	INTERN = "intern",
 	ENTRY_LEVEL = "entry-level",
 	JUNIOR = "junior",
-	INTERMEDIATE = "intermediate",
+	MID_LEVEL = "mid-level",
 	SENIOR = "senior",
 	LEAD = "lead",
 	DIRECTOR = "director",

@@ -136,7 +136,7 @@ const Jobs = () => {
 							<MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 							<Input placeholder="Location..." className="h-11 pl-10" value={location} onChange={(e) => setLocation(e.target.value)} />
 						</div>
-						<Button variant="outline" className="h-11 md:hidden" onClick={() => setShowFilters(!showFilters)}>
+						<Button variant="outline" className="h-11 md:hidden cursor-pointer" onClick={() => setShowFilters(!showFilters)}>
 							<SlidersHorizontal className="mr-2 h-4 w-4" /> Filters
 						</Button>
 					</div>
@@ -147,9 +147,7 @@ const Jobs = () => {
 				{/* Mobile: filters as a drawer overlay (prevents layout issues/side-by-side behavior). */}
 				<Sheet open={showFilters} onOpenChange={setShowFilters}>
 					<SheetContent side="left" className="w-11/12 p-0 md:hidden" aria-label="Filters">
-						<div className="h-full overflow-y-auto p-6">
-							{filtersContent}
-						</div>
+						<div className="h-full overflow-y-auto p-6">{filtersContent}</div>
 					</SheetContent>
 				</Sheet>
 

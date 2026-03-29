@@ -72,6 +72,7 @@ export interface NormalizedJob {
 	salaryMin?: number;
 	salaryMax?: number;
 	salaryCurrency?: string;
+	salaryRange?: string;
 }
 
 export interface JoobleJob {
@@ -98,7 +99,7 @@ export interface IJob {
 	sourceId: string;
 	postedAt: Date;
 	url: string;
-	salaryRange?: string
+	salaryRange?: string;
 }
 
 export interface Job extends IJob {

@@ -1,10 +1,4 @@
-// import { seedCategories } from "@/lib/db/seed";
-// import {
-// 	fetchArbeitnow,
-// 	fetchJobicy,
-// 	fetchJooble,
-// 	fetchTheMuse,
-// } from "@/lib/services/job.service";
+import { fetchJobDataAfrica, fetchJobDataNigeria } from "@/lib/services/job.service";
 import { NextResponse } from "next/server";
 
 export async function GET() {
@@ -12,11 +6,12 @@ export async function GET() {
 	// const arbeitnow = await fetchArbeitnow();
 	// const themuse = await fetchTheMuse();
 	// const jobicy = await fetchJobicy();
-	// const jooble = await fetchJooble();
+	// const africa = await fetchJobDataAfrica();
+	// const nigeria = await fetchJobDataNigeria();
 
 	// return NextResponse.json({
 	// 	success: true,
-	// 	data: { arbeitnow, themuse, jobicy, jooble },
+	// 	data: { africa, nigeria },
 	// });
 
 	return NextResponse.json({

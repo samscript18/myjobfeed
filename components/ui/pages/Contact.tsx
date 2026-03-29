@@ -158,7 +158,7 @@ const Contact = () => {
 
 								<Button
 									type="submit"
-									className="w-full h-11 bg-linear-to-r from-primary to-primary/90 text-white font-semibold hover:shadow-lg transition-all"
+									className="w-full h-11 bg-linear-to-r from-primary to-primary/90 text-white font-semibold hover:shadow-lg transition-all cursor-pointer"
 									disabled={contactUsPending}
 								>
 									{contactUsPending ? "Sending..." : "Send Message"}
