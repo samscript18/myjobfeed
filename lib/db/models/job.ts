@@ -1,6 +1,6 @@
 import { JobSource } from "@/lib/enums";
 import { Schema, model, models } from "mongoose";
-import Category from "./category";
+import "./category";
 
 const JobSchema = new Schema(
 	{
