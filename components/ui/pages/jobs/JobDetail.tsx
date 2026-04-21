@@ -12,25 +12,49 @@ import { Category, Job } from "@/lib/interfaces/job.interface";
 import Loader from "@/components/Loader";
 import JobDescription from "@/components/ui/pages/jobs/JobDescription";
 import { extractKeywords, getRandomSubset } from "@/lib/helpers";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 
 interface JobDetailProps {
 	jobSlug: string;
 }
 
 const JobDetail = ({ jobSlug }: JobDetailProps) => {
-	const [relatedJobs, setRelatedJobs] = useState<Job[]>([]);
 	const { data: job, isLoading } = useQuery({
 		queryFn: () => getJob(jobSlug),
 		queryKey: ["get-job", jobSlug],
+		staleTime: 60_000,
 	});
 
+	const currentCategoryId = (job?.categoryId as Category | undefined)?._id;
+
 	const { data } = useQuery({
-		queryFn: () => getJobs({ category: (job?.categoryId as Category)._id }),
-		queryKey: ["get-jobs"],
+		queryFn: () => getJobs({ category: currentCategoryId, limit: 40 }),
+		queryKey: ["get-related-jobs", currentCategoryId],
+		enabled: Boolean(currentCategoryId),
+		staleTime: 60_000,
 	});
 
 	const jobs = data?.data || [];
+
+	const relatedJobs = useMemo(() => {
+		if (!job || jobs.length === 0) return [] as Job[];
+
+		const featuredWindow = 14;
+		const cutoffDate = new Date(Date.now() - featuredWindow * 24 * 60 * 60 * 1000);
+		const currentTitleKeywords = extractKeywords(job.title.toLowerCase());
+
+		const filteredJobs = jobs.filter((candidate) => {
+			if ((candidate.categoryId as Category)?._id !== currentCategoryId || candidate._id === job._id) {
+				return false;
+			}
+
+			const candidateKeywords = extractKeywords(candidate.title.toLowerCase());
+			const hasKeywordOverlap = candidateKeywords.some((keyword) => currentTitleKeywords.includes(keyword));
+			return hasKeywordOverlap && new Date(candidate.postedAt) >= cutoffDate;
+		});
+
+		return getRandomSubset(filteredJobs, 4);
+	}, [job, jobs, currentCategoryId]);
 
 	if (!isLoading && !job) {
 		return (
@@ -52,25 +76,6 @@ const JobDetail = ({ jobSlug }: JobDetailProps) => {
 	const jobDescription = job?.description
 		?.replace('<p>Find <a href="https://www.arbeitnow.com/">Jobs in Germany</a> on Arbeitnow</a>', "")
 		.replace('<p>Find more <a href="https://www.arbeitnow.com/english-speaking-jobs">English Speaking Jobs in Germany</a> on Arbeitnow</a>', "");
-
-	useEffect(() => {
-		const featuredWindow = 14;
-		const cutoffDate = new Date(Date.now() - featuredWindow * 24 * 60 * 60 * 1000);
-		if (data?.data) {
-			const filteredJobs = jobs?.filter((j) => {
-				if ((j.categoryId as Category)?._id === (job?.categoryId as Category)?._id && j._id !== job?._id) {
-					const text = j.title.toLowerCase();
-					const jobKeywords = extractKeywords(text);
-					const currentKeywords = extractKeywords(job?.title!?.toLowerCase());
-					return jobKeywords.some((k) => currentKeywords.includes(k)) && new Date(j.postedAt) >= cutoffDate;
-				}
-
-				return [];
-			});
-
-			setRelatedJobs(getRandomSubset(filteredJobs, 4));
-		}
-	}, [data?.data]);
 
 	return (
 		<Layout>
@@ -131,7 +136,7 @@ const JobDetail = ({ jobSlug }: JobDetailProps) => {
 											</p>
 											<Button
 												onClick={() => (window.location.href = `mailto:${job?.url ?? ""}?subject=${encodeURIComponent(job?.title ?? "")}`)}
-												className="mt-4 w-full bg-accent cursor-pointer text-accent-foreground sm:w-auto cursor-pointer"
+												className="mt-4 w-full bg-accent cursor-pointer text-accent-foreground sm:w-auto"
 											>
 												Send Email
 											</Button>
@@ -199,7 +204,7 @@ const JobDetail = ({ jobSlug }: JobDetailProps) => {
 											</p>
 											<Button
 												onClick={() => (window.location.href = `mailto:${job?.url ?? ""}?subject=${encodeURIComponent(job?.title ?? "")}`)}
-												className="mt-4 w-full bg-accent cursor-pointer text-accent-foreground sm:w-auto cursor-pointer"
+												className="mt-4 w-full bg-accent cursor-pointer text-accent-foreground sm:w-auto"
 											>
 												Send Email
 											</Button>

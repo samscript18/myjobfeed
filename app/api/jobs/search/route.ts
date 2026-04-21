@@ -62,10 +62,11 @@ export async function GET(req: NextRequest) {
 			});
 
 		const jobs = await Job.find(filter)
+			.select("title company companyLogo slug location level type categoryId postedAt createdAt")
 			.sort({ postedAt: -1 })
 			.skip(skip)
 			.limit(limit)
-			.populate("categoryId")
+			.populate("categoryId", "name")
 			.lean();
 		return NextResponse.json({
 			success: true,

@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function Logo({ isLoading }: { isLoading?: boolean }) {
 	return isLoading ? (
-		<div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-primary shadow-lg shadow-primary/20 transition-transform group-hover:scale-105 animate-spin">
+		<div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-primary shadow-lg shadow-primary/20 transition-transform group-hover:scale-105 animate-[spin_1.8s_linear_infinite]">
 			<Zap className="h-5 w-5 fill-white text-white" />
 			<div className="absolute -inset-1 rounded-xl border border-primary/20 scale-110 group-hover:scale-125 transition-transform duration-500" />
 		</div>

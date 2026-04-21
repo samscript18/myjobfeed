@@ -7,13 +7,15 @@ import { JobLevel, JobType } from "../enums";
 
 export function resolvePaginationQuery(query: ResolvePaginationQuery): ResolvedPagination {
 	const page = Math.max(Number(query.page) || 1, 1);
+	const MAX_LIMIT = 100;
 
 	let limit = query.limit !== undefined && query.limit !== null ? Number(query.limit) : 20;
 
 	if (limit < 0) limit = 10;
+	if (limit > MAX_LIMIT) limit = MAX_LIMIT;
 
 	if (limit === 0) {
-		limit = query.count === 0 ? 1 : query.count;
+		limit = query.count === 0 ? 1 : Math.min(query.count, MAX_LIMIT);
 	}
 
 	const skip = (page - 1) * limit;
@@ -197,7 +199,7 @@ export function isValidURL(url: string) {
 }
 
 export function getRandomSubset(arr: Job[], size: number): Job[] {
-	const shuffled = arr.sort(() => 0.5 - Math.random());
+	const shuffled = [...arr].sort(() => 0.5 - Math.random());
 	return shuffled.slice(0, size);
 }
 

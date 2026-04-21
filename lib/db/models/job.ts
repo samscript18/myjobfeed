@@ -51,5 +51,10 @@ const JobSchema = new Schema(
 	},
 );
 
+JobSchema.index({ postedAt: -1 });
+JobSchema.index({ categoryId: 1, postedAt: -1 });
+JobSchema.index({ companySlug: 1, postedAt: -1 });
+JobSchema.index({ locationSlug: 1, postedAt: -1 });
+
 const Job = models.Job || model("Job", JobSchema);
 export default Job;

@@ -165,7 +165,6 @@ export async function fetchRemotive() {
 export async function fetchJobDataAfrica() {
 	try {
 		const res = await jobDataApi.get("/jobs/?location=africa");
-		console.log("Africa Jobs Response:", res.data);
 		const jobs = res.data?.results || [];
 
 		return jobs.map((job: any) => ({
@@ -194,7 +193,6 @@ export async function fetchJobDataAfrica() {
 export async function fetchJobDataNigeria() {
 	try {
 		const res = await jobDataApi.get("/jobs/?location=nigeria");
-		console.log("Raw Nigeria Jobs Data:", res.data);
 		const jobs = res.data?.results || [];
 
 		return jobs.map((job: any) => ({

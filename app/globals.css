@@ -182,7 +182,8 @@
     @apply bg-background text-foreground font-sans antialiased;
     min-height: 100dvh;
     background-image: var(--hero-gradient);
-    background-attachment: fixed;
+    background-attachment: scroll;
+    scroll-behavior: smooth;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -288,17 +289,14 @@
 @keyframes cosmic-pan {
   0% {
     transform: translate3d(-4%, -3%, 0) scale(1);
-    filter: hue-rotate(0deg) saturate(1);
   }
 
   50% {
     transform: translate3d(3%, 2%, 0) scale(1.08);
-    filter: hue-rotate(12deg) saturate(1.18);
   }
 
   100% {
     transform: translate3d(-4%, -3%, 0) scale(1);
-    filter: hue-rotate(0deg) saturate(1);
   }
 }
 
@@ -327,14 +325,12 @@
 @keyframes section-burst {
   from {
     opacity: 0;
-    transform: translateY(26px) scale(0.985);
-    filter: blur(8px);
+    transform: translateY(18px) scale(0.992);
   }
 
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
-    filter: blur(0);
   }
 }
 
@@ -369,14 +365,12 @@
 @keyframes route-morph-in {
   from {
     opacity: 0;
-    transform: perspective(1400px) rotateX(4deg) rotateY(-1.6deg) translateY(20px) scale(0.985);
-    filter: saturate(1.2) blur(9px);
+    transform: perspective(1400px) rotateX(3deg) rotateY(-1deg) translateY(16px) scale(0.99);
   }
 
   to {
     opacity: 1;
     transform: perspective(1400px) rotateX(0deg) rotateY(0deg) translateY(0) scale(1);
-    filter: saturate(1) blur(0);
   }
 }
 
@@ -390,7 +384,7 @@
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
+@media (prefers-reduced-motion: no-preference) and (min-width: 1024px) {
   .route-shell {
     animation: route-morph-in 0.72s cubic-bezier(0.17, 0.84, 0.24, 1) both;
     transform-origin: 50% 0%;
@@ -494,38 +488,20 @@
   }
 
   .app-main section {
-    opacity: 0;
-    animation: section-burst 0.95s cubic-bezier(0.18, 0.8, 0.22, 1) both;
+    opacity: 1;
+    animation: none;
   }
 
-  .app-main section:nth-of-type(1) {
-    animation-delay: 90ms;
+  .app-main h1 {
+    animation: title-flare 4.5s ease-in-out 1;
   }
 
-  .app-main section:nth-of-type(2) {
-    animation-delay: 170ms;
-  }
-
-  .app-main section:nth-of-type(3) {
-    animation-delay: 250ms;
-  }
-
-  .app-main section:nth-of-type(4) {
-    animation-delay: 330ms;
-  }
-
-  .app-main section:nth-of-type(5) {
-    animation-delay: 410ms;
-  }
-
-  .app-main h1,
   .app-main h2 {
-    animation: title-flare 6.5s ease-in-out infinite;
+    animation: none;
   }
 
   .app-main :is(button, a, [role="button"]) {
-    transition: transform 0.22s ease, box-shadow 0.24s ease, filter 0.24s ease;
-    will-change: transform;
+    transition: transform 0.16s ease, box-shadow 0.2s ease, filter 0.2s ease;
   }
 
   .app-main :is(button, a, [role="button"]):hover {
@@ -559,6 +535,24 @@
   .app-main [class*="rounded-2xl border"]:hover {
     transform: translateY(-4px) scale(1.008);
     box-shadow: 0 28px 45px -26px hsl(211 45% 22% / 0.45);
+  }
+}
+
+@media (max-width: 1023px) {
+
+  .site-nebula,
+  .site-stars,
+  .site-parallax,
+  .cursor-spotlight,
+  .site-chrome::before,
+  .site-chrome::after {
+    display: none !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  body {
+    background-attachment: fixed;
   }
 }
 

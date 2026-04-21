@@ -13,14 +13,33 @@ export interface CategoryPageProps {
 
 const CategoryPage = async ({ params }: CategoryPageProps) => {
 	const { categoryId } = await params;
+	const pageLimit = 20;
 
 	await dbConnect();
 
-	const category = await Category.findOne({ _id: categoryId }).lean();
+	const category = await Category.findOne({ _id: categoryId }).select("_id name slug description").lean();
 
 	if (!category) return <div>Category not found</div>;
 
-	const jobs = await Job.find({ categoryId: category._id }).sort({ postedAt: -1 }).limit(50).populate("categoryId", "name slug").lean();
+	const [jobs, count] = await Promise.all([
+		Job.find({ categoryId: category._id }).select("title company companyLogo slug location level type categoryId postedAt createdAt").sort({ postedAt: -1 }).limit(pageLimit).populate("categoryId", "name").lean(),
+		Job.countDocuments({ categoryId: category._id }),
+	]);
+
+	const totalPages = Math.max(Math.ceil(count / pageLimit), 1);
+	const initialJobsResponse = {
+		success: true,
+		message: "Jobs fetched successfully",
+		data: jobs,
+		meta: {
+			count,
+			page: 1,
+			totalPages,
+			limit: pageLimit,
+		},
+	};
+
+	const serializedInitialJobsResponse = JSON.parse(JSON.stringify(initialJobsResponse));
 
 	const structuredData = {
 		"@context": "https://schema.org",
@@ -41,7 +60,7 @@ const CategoryPage = async ({ params }: CategoryPageProps) => {
 					__html: JSON.stringify(structuredData),
 				}}
 			/>
-			<CategoryPageUI categoryId={categoryId} />;
+			<CategoryPageUI categoryId={categoryId} categoryName={category.name} initialJobsResponse={serializedInitialJobsResponse} />
 		</>
 	);
 };

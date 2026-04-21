@@ -7,7 +7,7 @@ import Layout from "@/components/Layout";
 import JobCard from "@/components/JobCard";
 import { mockCategories } from "@/lib/data/mock-data";
 import { Job } from "@/lib/interfaces/job.interface";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
@@ -31,11 +31,10 @@ const benefits = [
 const HomePage = () => {
 	const [keyword, setKeyword] = useState<string>("");
 	const [location, setLocation] = useState<string>("");
-	const [featuredJobs, setFeaturedJobs] = useState<Job[]>([]);
 	const router = useRouter();
 
 	const { data, isPending } = useQuery({
-		queryFn: () => getJobs(),
+		queryFn: () => getJobs({ limit: 18 }),
 		queryKey: ["get-jobs"],
 	});
 
@@ -45,6 +44,16 @@ const HomePage = () => {
 	});
 
 	const jobs = data?.data || [];
+	const featuredJobs = useMemo(() => {
+		if (!data?.data?.length) return [] as Job[];
+
+		const featuredWindow = 14;
+		const cutoffDate = new Date(Date.now() - featuredWindow * 24 * 60 * 60 * 1000);
+		return getRandomSubset(
+			data.data.filter((job) => new Date(job.postedAt) >= cutoffDate),
+			6,
+		);
+	}, [data?.data]);
 
 	const handleSearch = (e: React.FormEvent) => {
 		e.preventDefault();
@@ -53,19 +62,6 @@ const HomePage = () => {
 		if (location) params.set("location", location);
 		router.push(`/jobs?${params.toString()}`);
 	};
-
-	useEffect(() => {
-		const featuredWindow = 14;
-		const cutoffDate = new Date(Date.now() - featuredWindow * 24 * 60 * 60 * 1000);
-		if (data?.data) {
-			setFeaturedJobs(
-				getRandomSubset(
-					data?.data?.filter((job) => new Date(job.postedAt) >= cutoffDate),
-					6,
-				),
-			);
-		}
-	}, [data?.data]);
 
 	return (
 		<Layout>
