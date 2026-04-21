@@ -13,7 +13,7 @@ export async function GET() {
 	console.log("[SYNC] Starting job sync...");
 
 	try {
-		const categories = await Category.find();
+		const categories = await Category.find().select("_id slug").lean();
 		const categoryMap = new Map(categories.map((c) => [c.slug, c]));
 
 		const [arbeitJobs, museJobs, jobicyJobs, joobleJobs, findWorkJobs, remotiveJobs, jobDataAfricaJobs, jobDataNigeriaJobs] = await Promise.all([

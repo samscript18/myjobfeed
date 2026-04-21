@@ -26,7 +26,13 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ loca
 			count,
 		});
 
-		const jobs = await Job.find(filter).sort({ postedAt: -1 }).skip(skip).limit(limit).populate("categoryId", "name").lean();
+		const jobs = await Job.find(filter)
+			.select("title company companyLogo slug location level type categoryId postedAt createdAt")
+			.sort({ postedAt: -1 })
+			.skip(skip)
+			.limit(limit)
+			.populate("categoryId", "name")
+			.lean();
 
 		return NextResponse.json({
 			success: true,

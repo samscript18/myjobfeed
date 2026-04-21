@@ -7,8 +7,10 @@ export default async function sitemap() {
 	try {
 		await dbConnect();
 
-		const jobs = await Job.find();
-		const categories = await Category.find().select("slug");
+		const [jobs, categories] = await Promise.all([
+			Job.find().select("slug updatedAt").lean(),
+			Category.find().select("slug").lean(),
+		]);
 
 		const jobUrls = jobs.map((job) => ({
 			url: `${APP_URL}/jobs/${job.slug}`,

@@ -2,25 +2,37 @@
 
 import Layout from "@/components/Layout";
 import JobCard from "@/components/JobCard";
-import { getCategory, getJobs } from "@/lib/services/job.service";
-import { useQuery } from "@tanstack/react-query";
+import { getJobs } from "@/lib/services/job.service";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import Loader from "@/components/Loader";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Pagination } from "../pagination";
+import { Job } from "@/lib/interfaces/job.interface";
 
-const CategoryPageUI = ({ categoryId }: { categoryId: string }) => {
+interface InitialJobsResponse {
+	success: boolean;
+	message: string;
+	data: Job[];
+	meta: {
+		count: number;
+		page: number;
+		totalPages: number;
+		limit: number;
+	};
+}
+
+const CategoryPageUI = ({ categoryId, categoryName, initialJobsResponse }: { categoryId: string; categoryName: string; initialJobsResponse: InitialJobsResponse }) => {
 	const router = useRouter();
 	const [page, setPage] = useState<number>(1);
-	const { data: category } = useQuery({
-		queryFn: () => getCategory(categoryId),
-		queryKey: ["get-category", categoryId],
-	});
 
 	const { data, isPending } = useQuery({
-		queryFn: () => getJobs({ category: categoryId, page }),
+		queryFn: () => getJobs({ category: categoryId, page, limit: initialJobsResponse.meta.limit }),
 		queryKey: ["get-category-jobs", categoryId, page],
+		initialData: page === 1 ? initialJobsResponse : undefined,
+		placeholderData: keepPreviousData,
+		staleTime: 60_000,
 	});
 
 	const jobs = data?.data || [];
@@ -34,8 +46,8 @@ const CategoryPageUI = ({ categoryId }: { categoryId: string }) => {
 					<ArrowLeft size={16} />
 					Back
 				</button>
-				<h1 className="font-display text-3xl font-bold">{category?.name} Jobs</h1>
-				<p className="mt-1 text-muted-foreground">{jobsCount} open positions</p>
+				<h1 className="font-display text-3xl font-bold">{categoryName} Jobs</h1>
+				<p className="mt-1 text-muted-foreground min-h-6">{jobsCount} open positions</p>
 
 				{isPending ? (
 					<div className="flex justify-center items-center gap-4 my-24">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search, MapPin, SlidersHorizontal } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,8 @@ const Jobs = () => {
 	const searchParams = useSearchParams();
 	const [keyword, setKeyword] = useState<string>(searchParams?.get("keyword") || "");
 	const [location, setLocation] = useState<string>(searchParams?.get("location") || "");
+	const [debouncedKeyword, setDebouncedKeyword] = useState<string>(searchParams?.get("keyword") || "");
+	const [debouncedLocation, setDebouncedLocation] = useState<string>(searchParams?.get("location") || "");
 	const [showFilters, setShowFilters] = useState<boolean>(false);
 	const [page, setPage] = useState<number>(1);
 
@@ -36,9 +38,19 @@ const Jobs = () => {
 	const level = watch("level");
 	const category = watch("category");
 
+	useEffect(() => {
+		const timer = window.setTimeout(() => {
+			setDebouncedKeyword(keyword.trim());
+			setDebouncedLocation(location.trim());
+			setPage(1);
+		}, 350);
+
+		return () => window.clearTimeout(timer);
+	}, [keyword, location]);
+
 	const { data, isPending } = useQuery({
-		queryFn: () => getJobs({ keyword, location, type, level, category, page }),
-		queryKey: ["get-jobs", keyword, location, type, level, category, page],
+		queryFn: () => getJobs({ keyword: debouncedKeyword, location: debouncedLocation, type, level, category, page }),
+		queryKey: ["get-jobs", debouncedKeyword, debouncedLocation, type, level, category, page],
 	});
 
 	const jobs = data?.data || [];
