@@ -4,6 +4,7 @@ import { Job, NormalizedJob } from "../interfaces/job.interface";
 import { googleApiKey } from "../constants/env";
 import { cleanText, parseDate } from "../utils";
 import { JobLevel, JobType } from "../enums";
+import { INTERNAL_CATEGORIES, InternalCategory } from "../utils/categorizeJob";
 
 export function resolvePaginationQuery(query: ResolvePaginationQuery): ResolvedPagination {
 	const page = Math.max(Number(query.page) || 1, 1);
@@ -68,38 +69,55 @@ export function buildUpsertOp(job: NormalizedJob, categoryId: string) {
 	};
 }
 
-export async function batchCategorizeAI(batch: { title: string; description: string; job: NormalizedJob }[], maxRetries = 3, concurrency = 3, chunkSize = 10) {
+export async function batchCategorizeAI(batch: { title: string; description: string; job: NormalizedJob }[], maxRetries = 3, concurrency = 1, chunkSize = 20): Promise<(InternalCategory | null)[]> {
+	if (!batch.length) return [];
+	if (![maxRetries, concurrency, chunkSize].every((value) => Number.isInteger(value) && value > 0)) {
+		throw new Error("AI retry, concurrency and chunk size settings must be positive integers");
+	}
+	const fallback = (jobs: typeof batch) => jobs.map(() => null);
 	const promptForBatch = (jobs: typeof batch) => `
 Classify each job into ONE of these slugs:
-technology, marketing, healthcare, finance, engineering, sales, design, education
+${INTERNAL_CATEGORIES.join(", ")}
 
-Return ONLY an array of slugs in JSON. No extra text.
+Return ONLY an array of ${jobs.length} slugs in JSON, in the same order as the jobs. No extra text.
 
 Jobs:
 ${jobs.map((j) => `Title: ${j.title}\nDescription: ${cleanText(j.description)?.slice(0, 500)}`).join("\n\n")}
 `;
 
-	const tryGenerate = async (jobs: typeof batch, attempt = 1): Promise<string[]> => {
+	let unavailable = false;
+	const tryGenerate = async (jobs: typeof batch, attempt = 1): Promise<(InternalCategory | null)[]> => {
 		try {
 			const response = await ai.models.generateContent({
 				model: "gemini-3-flash-preview",
 				contents: promptForBatch(jobs),
+				config: {
+					responseMimeType: "application/json",
+					httpOptions: { timeout: 10_000 },
+				},
 			});
-			const result = JSON.parse(response.text!);
+			const result: unknown = JSON.parse(response.text || "null");
 			if (!Array.isArray(result) || result.length !== jobs.length) {
-				console.warn("[AI] Unexpected result, defaulting to technology");
-				return jobs.map(() => "technology");
+				console.warn("[AI] Unexpected result; using category fallback");
+				return fallback(jobs);
 			}
-			return result.map((r: string) => r.toLowerCase());
-		} catch (err: any) {
-			if (attempt < maxRetries && (err?.status === 503 || err?.message?.includes("high demand"))) {
-				const delay = 500 * Math.pow(2, attempt); // exponential backoff
-				console.warn(`[AI] Model busy, retrying in ${delay}ms (attempt ${attempt})`);
+			return result.map((value: unknown) => {
+				const slug = typeof value === "string" ? value.trim().toLowerCase() : "";
+				return INTERNAL_CATEGORIES.find((category) => category === slug) ?? null;
+			});
+		} catch (err: unknown) {
+			const status = typeof err === "object" && err !== null && "status" in err ? Number(err.status) : undefined;
+			const message = err instanceof Error ? err.message : String(err);
+			const retryable = (status !== undefined && [408, 429, 500, 502, 503, 504].includes(status)) || /high demand|timeout|timed out|aborted/i.test(message);
+			if (attempt < maxRetries && retryable) {
+				const delay = 1000 * Math.pow(2, attempt - 1) + Math.floor(Math.random() * 250);
+				console.warn(`[AI] Request unavailable, retrying in ${delay}ms (attempt ${attempt})`);
 				await new Promise((res) => setTimeout(res, delay));
 				return tryGenerate(jobs, attempt + 1);
 			} else {
+				unavailable = true;
 				console.error("[AI] Batch classification failed:", err);
-				return jobs.map(() => "technology");
+				return fallback(jobs);
 			}
 		}
 	};
@@ -109,7 +127,7 @@ ${jobs.map((j) => `Title: ${j.title}\nDescription: ${cleanText(j.description)?.s
 		chunks.push(batch.slice(i, i + chunkSize));
 	}
 
-	const results: string[] = [];
+	const results: (InternalCategory | null)[][] = new Array(chunks.length);
 	let index = 0;
 
 	const pool: Promise<void>[] = [];
@@ -117,8 +135,8 @@ ${jobs.map((j) => `Title: ${j.title}\nDescription: ${cleanText(j.description)?.s
 	const runNext = async () => {
 		if (index >= chunks.length) return;
 		const currentIndex = index++;
-		const chunkResult = await tryGenerate(chunks[currentIndex]);
-		results.push(...chunkResult);
+		const chunk = chunks[currentIndex];
+		results[currentIndex] = unavailable ? fallback(chunk) : await tryGenerate(chunk);
 		await runNext();
 	};
 
@@ -128,7 +146,7 @@ ${jobs.map((j) => `Title: ${j.title}\nDescription: ${cleanText(j.description)?.s
 
 	await Promise.all(pool);
 
-	return results;
+	return results.flat();
 }
 
 export function normalizeJobType(type?: string): JobType | string {

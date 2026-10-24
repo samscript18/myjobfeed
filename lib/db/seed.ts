@@ -1,7 +1,7 @@
 import Category from '@/lib/db/models/category';
 import dbConnect from './mongodb';
 
-const categories = [
+export const DEFAULT_CATEGORIES = [
 	{
 		name: 'Technology',
 		slug: 'technology',
@@ -45,25 +45,9 @@ const categories = [
 ];
 
 export async function seedCategories() {
-  try {
-    const db = await dbConnect();
-		console.log('[SEED] Connected to DB');
-
-		for (const cat of categories) {
-			const exists = await Category.findOne({ slug: cat.slug });
-			if (!exists) {
-				await Category.create(cat);
-				console.log(`[SEED] Inserted category: ${cat.name}`);
-			} else {
-				console.log(`[SEED] Category already exists: ${cat.name}`);
-			}
-		}
-
-		console.log('[SEED] Categories seeding completed');
-    process.exit(0);
-	} catch (error) {
-		console.error('[SEED] Error seeding categories:', error);
-		process.exit(1);
+	await dbConnect();
+	for (const category of DEFAULT_CATEGORIES) {
+		await Category.updateOne({ slug: category.slug }, { $setOnInsert: category }, { upsert: true });
 	}
 }
 

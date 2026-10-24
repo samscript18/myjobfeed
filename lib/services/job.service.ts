@@ -25,7 +25,7 @@ export async function fetchArbeitnow() {
 			sourceId: `arbeit-${job.slug}`,
 		}));
 	} catch (error) {
-		errorHandler(error as AxiosErrorShape);
+		errorHandler(error as AxiosErrorShape, "Arbeitnow");
 		return [];
 	}
 }
@@ -50,7 +50,7 @@ export async function fetchTheMuse() {
 			sourceId: `muse-${job.id}`,
 		}));
 	} catch (error) {
-		errorHandler(error as AxiosErrorShape);
+		errorHandler(error as AxiosErrorShape, "The Muse");
 		return [];
 	}
 }
@@ -79,7 +79,7 @@ export async function fetchJobicy() {
 			sourceId: `jobicy-${job.id}`,
 		}));
 	} catch (error) {
-		errorHandler(error as AxiosErrorShape);
+		errorHandler(error as AxiosErrorShape, "Jobicy");
 		return [];
 	}
 }
@@ -105,7 +105,7 @@ export async function fetchJooble() {
 			sourceId: `jooble-${job.id}`,
 		}));
 	} catch (error) {
-		errorHandler(error as AxiosErrorShape);
+		errorHandler(error as AxiosErrorShape, "Jooble");
 		return [];
 	}
 }
@@ -131,7 +131,7 @@ export async function fetchFindwork() {
 			sourceId: `findwork-${job.id}`,
 		}));
 	} catch (error) {
-		errorHandler(error as AxiosErrorShape);
+		errorHandler(error as AxiosErrorShape, "Findwork");
 		return [];
 	}
 }
@@ -157,7 +157,7 @@ export async function fetchRemotive() {
 			sourceId: `remotive-${job.id}`,
 		}));
 	} catch (error) {
-		errorHandler(error as AxiosErrorShape);
+		errorHandler(error as AxiosErrorShape, "Remotive");
 		return [];
 	}
 }
@@ -185,7 +185,7 @@ export async function fetchJobDataAfrica() {
 			sourceId: `jobdata-${job.id}`,
 		}));
 	} catch (error) {
-		errorHandler(error as AxiosErrorShape);
+		errorHandler(error as AxiosErrorShape, "JobData Africa");
 		return [];
 	}
 }
@@ -213,7 +213,7 @@ export async function fetchJobDataNigeria() {
 			sourceId: `jobdata-${job.id}`,
 		}));
 	} catch (error) {
-		errorHandler(error as AxiosErrorShape);
+		errorHandler(error as AxiosErrorShape, "JobData Nigeria");
 		return [];
 	}
 }

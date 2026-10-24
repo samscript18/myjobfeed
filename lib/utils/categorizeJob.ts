@@ -1,6 +1,6 @@
 export const INTERNAL_CATEGORIES = ["technology", "marketing", "healthcare", "finance", "engineering", "sales", "design", "education"] as const;
 
-type InternalCategory = (typeof INTERNAL_CATEGORIES)[number];
+export type InternalCategory = (typeof INTERNAL_CATEGORIES)[number];
 
 export const CATEGORY_KEYWORDS: Record<InternalCategory, string[]> = {
 	technology: [

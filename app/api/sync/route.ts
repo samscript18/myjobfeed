@@ -7,14 +7,25 @@ import { BATCH_SIZE } from "@/lib/utils";
 import { NormalizedJob } from "@/lib/interfaces/job.interface";
 import { fetchArbeitnow, fetchFindwork, fetchJobDataAfrica, fetchJobDataNigeria, fetchJobicy, fetchJooble, fetchRemotive, fetchTheMuse } from "@/lib/services/job.service";
 import { batchCategorizeAI, buildUpsertOp } from "@/lib/helpers";
+import { DEFAULT_CATEGORIES, seedCategories } from "@/lib/db/seed";
 
 export async function GET() {
-	await dbConnect();
 	console.log("[SYNC] Starting job sync...");
 
 	try {
-		const categories = await Category.find().select("_id slug").lean();
+		await dbConnect();
+		let categories = await Category.find().select("_id slug").lean();
+		const existingSlugs = new Set(categories.map((category) => category.slug));
+		if (DEFAULT_CATEGORIES.some((category) => !existingSlugs.has(category.slug))) {
+			console.log("[SYNC] Seeding missing categories");
+			await seedCategories();
+			categories = await Category.find().select("_id slug").lean();
+		}
 		const categoryMap = new Map(categories.map((c) => [c.slug, c]));
+		const fallbackCategory = categoryMap.get("technology");
+		if (!fallbackCategory?._id) {
+			throw new Error("Sync requires the technology fallback category; category initialization failed");
+		}
 
 		const [arbeitJobs, museJobs, jobicyJobs, joobleJobs, findWorkJobs, remotiveJobs, jobDataAfricaJobs, jobDataNigeriaJobs] = await Promise.all([
 			fetchArbeitnow(),
@@ -79,16 +90,25 @@ export async function GET() {
 			}
 		}
 
+		let aiAvailable = true;
+		let fallbackCount = 0;
 		for (let i = 0; i < toProcessAI.length; i += BATCH_SIZE) {
 			const batch = toProcessAI.slice(i, i + BATCH_SIZE);
-			const aiResults = await batchCategorizeAI(batch);
+			const aiResults = aiAvailable ? await batchCategorizeAI(batch) : [];
+			if (aiAvailable && !aiResults.some((slug) => slug !== null)) {
+				aiAvailable = false;
+				console.warn("[SYNC] AI classification unavailable; using fallback for remaining jobs");
+			}
 			for (let j = 0; j < batch.length; j++) {
 				const { job } = batch[j];
 				const categorySlug = aiResults[j];
-				const category = categoryMap.get(categorySlug) || categoryMap.get("technology")!;
+				const matchedCategory = categorySlug ? categoryMap.get(categorySlug) : undefined;
+				if (!matchedCategory) fallbackCount++;
+				const category = matchedCategory || fallbackCategory;
 				ops.push(buildUpsertOp(job, category._id));
 			}
 		}
+		if (fallbackCount > 0) console.warn(`[SYNC] Used technology fallback for ${fallbackCount} jobs`);
 
 		if (ops.length > 0) {
 			const data = await Job.bulkWrite(ops);
